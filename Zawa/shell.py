@@ -1,16 +1,6 @@
 from interpreter import Interpreter
 from compiler import Compiler
 
-def prep(data):
-    prep_data = list()
-    for i in data:
-        if i.endswith("\n"):
-            i = i[:-2]
-        elif i.startswith("\t") or i.startswith(" "):
-            while i.startswith("\t") or i.startswith(" "):
-                i = i[1:]
-    return prep_data
-
 # Shell
 while True:
     inp = input(">> ").split()
