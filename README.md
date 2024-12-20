@@ -1,7 +1,7 @@
 <h1 align="center">Zawa</a></h1>
 
 <p align="center">
-    <img width="400" src="https://github.com/Zocker-Welt/Zawa/blob/main/wiki/Zawa%20logo%20v2.png" alt="logo">
+    <img width="400" src="https://github.com/Zocker-Welt/Zawa/blob/main/wiki/Zawa%20logo%20v3.png" alt="logo">
 </p>
 
 <p align="center">
