@@ -216,7 +216,11 @@ int
   </b>
 </p>
 
-<h1 align="center">Thank you!</a></h1>
+<h1 align="center">Credits</a></h1>
+<p align="center">
+    Thanks to <a href="https://scratch.mit.edu/users/redspacecat/">redspacecat</a> for explaining me how to make a virtual machine compiled language
+</p>
+
 <p align="center">
     Thanks for reading the whole documentation, more features are coming soon!
 </p>
