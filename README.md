@@ -83,7 +83,7 @@ exit
 
 ```ruby
 int $var = 5; # Sets the variable $var to an integer 5;
-str $var = Hello; # Sets the variables $var to a string Hello;
+str $var = Hello,\sworld!\n; # Sets the variables $var to a string Hello;
 
 sum $var = int 5 + int 3; # Add 2 values;
 sub $var = int 5 - int 3; # Substract 2 values;
@@ -96,7 +96,7 @@ equ $var = (5 + 3) / 5; # Smart equation (if you want to use strings put them in
 <h3 align="center">Input / Output</a></h3>
 
 ```ruby
-print Hello\n; # Writes a value in the terminal;
+print Hello,\sworld!\n; # Writes a value in the terminal;
 input $var; # Asks for user input (reads a whole line)
 ```
 
@@ -190,7 +190,7 @@ $var
 
 ```
 puts
-Hello\n
+Hello, world\n
 
 cin_var
 $var
