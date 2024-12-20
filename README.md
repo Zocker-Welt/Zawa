@@ -59,6 +59,23 @@ exit
 ```
 
 <h1 align="center">Documentation</a></h1>
+
+<p align="center">
+  <b>
+    \s = space character
+  </b>
+</p>
+<p align="center">
+  <b>
+    \n = new line character
+  </b>
+</p>
+<p align="center">
+  <b>
+    \t = tab character
+  </b>
+</p>
+
 <h3 align="center">Variables</a></h3>
 <p align="center">
     Variables are declared when you first use them
