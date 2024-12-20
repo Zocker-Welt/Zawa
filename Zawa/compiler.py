@@ -4,9 +4,14 @@ class Compiler:
         self.file = file
         self.compiled = list()
 
+    def string(self, _str):
+        return _str.replace("\s", " ")
+
     def set_var(self, type):
         self.line = self.line[len(type):]
         self.var_name, self.var_val = self.line.split("=")
+        if type == "str":
+            self.var_val = self.string(self.var_val)
         self.compiled.extend([
             "set_var",
             self.var_name,
@@ -24,13 +29,13 @@ class Compiler:
             self.val1 = self.val1[3:]
         elif self.val1.startswith("str"):
             self.type1 = "str"
-            self.val1 = self.val1[3:]
+            self.val1 = self.string(self.val1[3:])
         if self.val2.startswith("int"):
             self.type2 = "int"
             self.val2 = self.val2[3:]
         elif self.val2.startswith("str"):
             self.type2 = "str"
-            self.val2 = self.val2[3:]
+            self.val2 = self.string(self.val2[3:])
         self.compiled.extend([
             f"{type}_var",
             self.dest,
@@ -53,7 +58,7 @@ class Compiler:
             
             elif self.line.startswith("print"):
                 self.line = self.line[5:]
-                self.val = self.line
+                self.val = self.string(self.line)
                 self.compiled.extend([
                     "puts",
                     self.val,
@@ -75,6 +80,7 @@ class Compiler:
             elif self.line.startswith("equ"):
                 self.line = self.line[3:]
                 self.var_name, self.var_val = self.line.split("=")
+                self.var_val = self.string(self.var_val)
                 self.compiled.extend([
                     "equ_var",
                     self.var_name,
