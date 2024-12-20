@@ -1,0 +1,17 @@
+int $var = 5; // Create an integer variable;
+
+str $var = hello; // Create a string variable;
+
+sum $dest = int 5 + int 3; // Add 2 values;
+
+sub $dest = int 5 - int 3; // Substract 2 values;
+
+mul $dest = int 7 * int 4; // Multiply 2 values;
+
+div $dest = int 9 / int 4; // Divide 2 values;
+
+equ $equ = (5 + 3) / 4; // Smart equation (if you want to use strings put them in "")
+
+input $var; // Variable input;
+
+print $var; // Output
