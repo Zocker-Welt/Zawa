@@ -50,6 +50,14 @@ compile main.zawa main.zvm
 run main.zvm
 ```
 
+<p align="left">
+    Close the shell
+</p>
+
+```bash
+exit
+```
+
 <h1 align="center">Documentation</a></h1>
 <h3 align="center">Variables</a></h3>
 <p align="center">
