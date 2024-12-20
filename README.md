@@ -71,6 +71,139 @@ print Hello\n; # Writes a value in the terminal;
 input $var; # Asks for user input (reads a whole line)
 ```
 
+<h1 align="center">.zvm</a></h1>
+
+<p align="center">
+  <b>
+    Here I'll explain how to write the .zvm file
+  </b>
+</p>
+
+<p align="center">
+    The language structure is the same, but you'll need to write more lines
+</p>
+
+<h3 align="center">Variables</a></h3>
+
+<p align="left">
+    set_var
+</p>
+
+```
+set_var
+$var
+int
+4
+
+set_var
+$var
+str
+Hello
+```
+
+<p align="left">
+    operation_var
+</p>
+
+```
+sum_var
+$var
+int
+5
+int
+3
+
+sub_var
+$var
+int
+5
+int
+3
+
+mul_var
+$var
+int
+7
+int
+4
+
+div_var
+$var
+int
+9
+int
+4
+
+```
+
+<p align="left">
+    equ_var
+</p>
+
+```
+equ_var
+$var
+(5+3)/5
+```
+
+<p align="left">
+    random_var
+</p>
+
+```
+random_var
+$var
+-5
+5
+```
+
+<h3 align="center">Input / Output</a></h3>
+
+```
+puts
+Hello\n
+
+cin_var
+$var
+```
+
+<h3 align="center">Jumps</a></h3>
+
+<p align="left">
+    jump to a line (while True loops)
+</p>
+
+```
+jump line_idx
+```
+
+<p align="left">
+    jumpif (if statements)
+</p>
+<p align="left">
+    you can use < = > ! for expressions
+</p>
+<p align="left">
+    if the statement is incorrect we jump to a line else we do nothing  
+</p>
+
+```
+jumpif
+line_idx
+>
+int
+5
+int
+3
+```
+
+<h3 align="center"><a href="https://github.com/Zocker-Welt/Zawa/blob/main/wiki/game.zvm">Example</a></h3>
+<p align="center">
+  <b>
+    A simple guessing game
+  </b>
+</p>
+
 <h1 align="center">Thank you!</a></h1>
 <p align="center">
     Thanks for reading the whole documentation, more features are coming soon!
