@@ -26,16 +26,22 @@ class Compiler:
         self.val1, self.val2 = self.end.split(sign)
         if self.val1.startswith("int"):
             self.type1 = "int"
-            self.val1 = self.val1[3:]
+            self.val1 = self.val1[len("int"):]
         elif self.val1.startswith("str"):
             self.type1 = "str"
-            self.val1 = self.string(self.val1[3:])
+            self.val1 = self.string(self.val1[len("str"):])
+        elif self.val1.startswith("float"):
+            self.type1 = "int"
+            self.val1 = self.val1[len("float"):]
         if self.val2.startswith("int"):
             self.type2 = "int"
-            self.val2 = self.val2[3:]
+            self.val2 = self.val2[len("int"):]
         elif self.val2.startswith("str"):
             self.type2 = "str"
-            self.val2 = self.string(self.val2[3:])
+            self.val2 = self.string(self.val2[len("str"):])
+        elif self.val2.startswith("float"):
+            self.type2 = "float"
+            self.val2 = self.val2[len("float"):] # type length
         self.compiled.extend([
             f"{type}_var",
             self.dest,
@@ -55,6 +61,9 @@ class Compiler:
 
             elif self.line.startswith("str"):
                 self.set_var("str")
+            
+            elif self.line.startswith("float"):
+                self.set_var("float")
             
             elif self.line.startswith("print"):
                 self.line = self.line[5:]
