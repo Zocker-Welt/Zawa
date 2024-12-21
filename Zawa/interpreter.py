@@ -27,6 +27,8 @@ class Interpreter:
             self.val = int(self.val)
         elif type == "str":
             self.val = str(self.val)
+        elif type == "float":
+            self.val = float(self.val)
         return self.val
     
     def equation(self, sign, val1, val2):
