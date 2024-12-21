@@ -83,6 +83,7 @@ exit
 
 ```ruby
 int $var = 5; # Sets the variable $var to an integer 5;
+float $var = 3.4; # Sets the variable $var to a a floating point 3.4;
 str $var = Hello,\sworld!\n; # Sets the variables $var to a string Hello;
 
 sum $var = int 5 + int 3; # Add 2 values;
