@@ -32,6 +32,7 @@ class Interpreter:
         return self.val
     
     def equation(self, sign, val1, val2):
+        #print(0)
         if sign == "=":
             if val1 == val2:
                 return True
