@@ -14,10 +14,6 @@
   You need to have <a href="https://www.python.org/downloads/">Python</a> installed to compile/run your programm
 </p>
 
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=4GDkzBva0OE">🞄 Tutorial episode 1</a>
-</p>
-
 <h1 align="center">About</a></h1>
 
 <p align="center">
@@ -253,6 +249,11 @@ int
   <b>
     A simple guessing game
   </b>
+</p>
+
+<h1 align="center">Links</a></h1>
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=4GDkzBva0OE">Tutorial episode 1</a>
 </p>
 
 <h1 align="center">Credits</a></h1>
