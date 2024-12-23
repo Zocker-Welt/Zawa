@@ -101,6 +101,14 @@ print Hello,\sworld!\n; # Writes a value in the terminal;
 input $var; # Asks for user input (reads a whole line)
 ```
 
+<h3 align="center">Logic</a></h3>
+
+```ruby
+if (int 4 = int 4) do;
+    print Math \s ain't \s mathing\n; # Indentation is not important
+endif;
+```
+
 <h1 align="center">.zvm</a></h1>
 
 <p align="center">
