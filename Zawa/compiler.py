@@ -4,6 +4,10 @@ class Compiler:
         self.file = file
         self.compiled = list()
 
+    def advance(self, line):
+        self.line_idx += line
+        self.line = self.compiled[self.line_idx]
+
     def string(self, _str):
         return _str.replace("\s", " ")
 
@@ -51,6 +55,30 @@ class Compiler:
             self.val2,
             ""
         ])
+
+    def if_line(self, sign):
+        self.sign = sign
+        self.val1, self.val2 = self.line.split(sign)
+        if self.val1.startswith("int"):
+            self.type1 = "int"
+            self.val1 = self.val1[len("int"):]
+        elif self.val1.startswith("str"):
+            self.type1 = "str"
+            self.val1 = self.string(self.val1[len("str"):])
+        elif self.val1.startswith("float"):
+            self.type1 = "int"
+            self.val1 = self.val1[len("float"):]
+        if self.val2.startswith("int"):
+            self.type2 = "int"
+            self.val2 = self.val2[len("int"):]
+        elif self.val2.startswith("str"):
+            self.type2 = "str"
+            self.val2 = self.string(self.val2[len("str"):])
+        elif self.val2.startswith("float"):
+            self.type2 = "int"
+            self.val2 = self.val2[len("float"):]
+        self.val2 = self.string(self.val2)
+        self.val2 = self.string(self.val2)
 
     def compile(self):
         for self.line in self.code:
@@ -105,7 +133,56 @@ class Compiler:
                     self.var_name,
                     ""
                 ])
-                
+            
+            elif self.line.startswith("if"):
+                self.line = self.line[2:]
+                self.line = self.line[self.line.find("(") + 1:self.line.rfind(")")]
+                if "=" in self.line:
+                    self.if_line("=")
+                elif "<" in self.line:
+                    self.if_line("<")
+                elif ">" in self.line:
+                    self.if_line(">")
+                elif "!=" in self.line:
+                    self.if_line("!=")
+                self.compiled.extend([
+                    "jumpif",
+                    "jump_if_idx",
+                    self.sign,
+                    self.type1,
+                    self.val1,
+                    self.type2,
+                    self.val2,
+                    ""
+                ])
+            
+            elif self.line.startswith("endif"):
+                self.compiled.extend([
+                    "jump_if_end",
+                    ""
+                ])
+        
         self.compiled.extend(["exit"])
+
+        self.line_idx = 0
+        while True:
+            try:
+                self.advance(1)
+            except IndexError:
+                break
+            if self.line == "jump_if_end":
+                self.flag = 0
+                self.save_if_jump = self.line_idx
+                while True:
+                    self.advance(-1)
+                    if self.line == "jump_if_idx":
+                        if self.flag < 1:
+                            self.compiled[self.line_idx] = str(self.save_if_jump + 1)
+                            self.line_idx = self.save_if_jump + 1
+                            break
+                        else:
+                            self.flag -= 1
+
+
         with open(self.file, "w") as f:
             f.write("\n".join(self.compiled))
