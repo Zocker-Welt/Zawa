@@ -1,4 +1,4 @@
-<h1 align="center">Zawa</a></h1>
+<h1 align="center">Zawa 0.7</a></h1>
 
 <p align="center">
     <img width="400" src="https://github.com/Zocker-Welt/Zawa/blob/main/wiki/Zawa%20logo%20v3.png" alt="logo">
@@ -107,6 +107,15 @@ input $var; # Asks for user input (reads a whole line)
 if (int 4 = int 4) do;
     print Math \s ain't \s mathing\n; # Indentation is not important
 endif;
+```
+
+<h3 align="center">Loops</a></h3>
+😅 There is now way to end a loop rigth now, only if you edit the .zvm file
+
+```ruby
+forever loop;
+    print nani\n;
+endloop;
 ```
 
 <h1 align="center">.zvm</a></h1>
@@ -249,4 +258,8 @@ int
 
 <p align="center">
     Thanks for reading the whole documentation, more features are coming soon!
+</p>
+
+<p align="center">
+    The first 100% working versin of Zawa will be 1.0 (still no error handling xD)
 </p>
