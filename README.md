@@ -1,4 +1,4 @@
-<h1 align="center">Zawa 0.7</a></h1>
+<h1 align="center">Zawa 0.7.4</a></h1>
 
 <p align="center">
     <img width="400" src="https://github.com/Zocker-Welt/Zawa/blob/main/wiki/Zawa%20logo%20v3.png" alt="logo">
@@ -104,7 +104,7 @@ input $var; # Asks for user input (reads a whole line)
 <h3 align="center">Logic</a></h3>
 
 ```ruby
-if (int 4 = int 4) do;
+if (int 4 == int 4) do; # You can write ==, !=, <, >
     print Math \s ain't \s mathing\n; # Indentation is not important
 endif;
 ```
