@@ -137,14 +137,18 @@ class Compiler:
             elif self.line.startswith("if"):
                 self.line = self.line[2:]
                 self.line = self.line[self.line.find("(") + 1:self.line.rfind(")")]
-                if "=" in self.line:
-                    self.if_line("=")
+                if "==" in self.line:
+                    self.if_line("==")
                 elif "<" in self.line:
                     self.if_line("<")
                 elif ">" in self.line:
                     self.if_line(">")
                 elif "!=" in self.line:
                     self.if_line("!=")
+                if self.sign == "==":
+                    self.sign = "="
+                elif self.sign == "!=":
+                    self.sign = "!"
                 self.compiled.extend([
                     "jumpif",
                     "jump_if_idx",
