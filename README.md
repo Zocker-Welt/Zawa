@@ -104,17 +104,41 @@ input $var; # Asks for user input (reads a whole line)
 <h3 align="center">Logic</a></h3>
 
 ```ruby
-if (int 4 == int 4) do; # You can write ==, !=, <, >
-    print Math \s ain't \s mathing\n; # Indentation is not important
+if (int 4 == int 4) do; # You can write ==, !=, <, >;
+    print Math \s ain't \s mathing\n; # Indentation is not important;
 endif;
 ```
 
 <h3 align="center">Loops</a></h3>
-😅 There is now way to end a loop rigth now, only if you edit the .zvm file
 
 ```ruby
 forever loop;
     print nani\n;
+endloop;
+```
+
+<p align="left">
+    breake a loop
+</p>
+
+```ruby
+breakloop;
+```
+
+<p align="left">
+    Create a for loop
+</p>
+
+```ruby
+# Counts from 0 to 4;
+int $i = 0;
+forever loop;
+    print $i;
+    print \n;
+    sum $i = int $i + int 1;
+    if (int $i == int 5) do;
+        breakloop;
+    endif;
 endloop;
 ```
 
