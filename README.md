@@ -51,6 +51,14 @@ run main.zvm
 ```
 
 <p align="left">
+    Find out the time of compile/run
+</p>
+
+```bash
+time
+```
+
+<p align="left">
     Close the shell
 </p>
 
