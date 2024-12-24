@@ -298,5 +298,5 @@ int
 </p>
 
 <p align="center">
-    The first 100% working versin of Zawa will be 1.0 (still no error handling xD)
+    The first 100% working version of Zawa will be 1.0 (still no error handling xD)
 </p>
