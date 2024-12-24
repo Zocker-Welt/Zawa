@@ -234,7 +234,6 @@ class Compiler:
                 break
             if self.line == "breakloop":
                 self.compiled[self.line_idx] = "jump"
-                print(self.compiled[self.line_idx])
                 self.flag = 0
                 self.save_break_jump = self.line_idx
                 while True:
