@@ -179,6 +179,12 @@ class Compiler:
                     "jump_idx",
                     ""
                 ])
+            elif self.line.startswith("breakloop"):
+                self.compiled.extend([
+                    "breakloop",
+                    "breakloop_idx",
+                    ""
+                ])
         
         self.compiled.extend(["exit"])
 
@@ -220,28 +226,27 @@ class Compiler:
                         else:
                             self.flag -= 1
 
-        """
         self.line_idx = -1
         while True:
             try:
                 self.advance(1)
             except IndexError:
                 break
-            print(self.line)
-            if self.line == "forever_loop_start":
-                print("-")
+            if self.line == "breakloop":
+                self.compiled[self.line_idx] = "jump"
+                print(self.compiled[self.line_idx])
                 self.flag = 0
-                self.save_loop_jump = self.line_idx
+                self.save_break_jump = self.line_idx
                 while True:
                     self.advance(1)
-                    if self.line == "jump_idx":
-                        print("#")
+                    if self.line == "jump":
                         if self.flag < 1:
-                            self.compiled[self.line_idx] = str(self.save_loop_jump + 1)
-                            self.line_idx = self.save_loop_jump + 1
+                            self.compiled[self.save_break_jump + 1] = str(self.line_idx + 1)
+                            self.line_idx = self.save_break_jump + 1
+                            break
                         else:
                             self.flag -= 1
-        """
+
 
         with open(self.file, "w") as f:
             f.write("\n".join(self.compiled))
