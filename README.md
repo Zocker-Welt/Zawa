@@ -150,6 +150,32 @@ forever loop;
 endloop;
 ```
 
+<h3 align="center">Using_name</a></h3>
+
+<p align="left">
+    😅 You can't use (, ) because it is used for sytax like if statement (may be changed later)
+</p>
+
+```ruby
+using_name { = loop;
+using_name } = endloop;
+
+using_name [ = do;
+using_name ] = endif;
+
+# Makes so you can write beautiful for loops and ifs;
+
+int $i = 1;
+forever {;
+    print $i;
+    print \n;
+    sum $i = int $i + int 1;
+    if (int $i == int 1001) [;
+        breakloop;
+    ];
+};
+```
+
 <h1 align="center">.zvm</a></h1>
 
 <p align="center">
