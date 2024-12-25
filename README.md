@@ -153,7 +153,7 @@ endloop;
 <h3 align="center">Using_name</a></h3>
 
 <p align="left">
-    😅 You can't use (, ) because it is used for sytax like if statement (may be changed later)
+    😅 You can't use ( ) because it is used for sytax like if statement (may be changed later)
 </p>
 
 ```ruby
