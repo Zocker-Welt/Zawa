@@ -4,12 +4,16 @@ class Compiler:
         self.file = file
         self.compiled = list()
 
+    def reaplce_code(self, val1, val2):
+        for i in range(len(self.code)):
+            self.code[i] = self.code[i].replace(val1, val2)
+
     def advance(self, line):
         self.line_idx += line
         self.line = self.compiled[self.line_idx]
 
     def string(self, _str):
-        return _str.replace("\s", " ")
+        return _str.replace("\s", " ").replace("\c", " ")
 
     def set_var(self, type):
         self.line = self.line[len(type):]
@@ -133,6 +137,14 @@ class Compiler:
                     self.var_name,
                     ""
                 ])
+            
+            elif self.line.startswith("using_name"):
+                self.line = self.line[10:]
+                self.val1, self.val2 = self.line.split("=")
+                self.val1 = self.string(self.val1)
+                self.val2 = self.string(self.val2)
+                self.reaplce_code(self.val1, self.val2)
+                #print(self.val1, self.val2, self.code)
             
             elif self.line.startswith("if"):
                 self.line = self.line[2:]
