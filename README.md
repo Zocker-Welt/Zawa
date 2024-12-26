@@ -1,4 +1,4 @@
-<h1 align="center">Zawa 0.7.9</a></h1>
+<h1 align="center">Zawa 0.8.0</a></h1>
 
 <p align="center">
     <img width="400" src="https://github.com/Zocker-Welt/Zawa/blob/main/wiki/Zawa%20logo%20v3.png" alt="logo">
@@ -153,7 +153,7 @@ endloop;
 <h3 align="center">Using_name</a></h3>
 
 <p align="left">
-    😅 You can't use ( ) because it is used for sytax like if statement (may be changed later)
+    😅 You can't use ( for do because ( and ) are reserved for ifs (in more updates for lists to)
 </p>
 
 ```ruby
@@ -174,6 +174,16 @@ forever {;
         breakloop;
     ];
 };
+```
+
+<p align="left">
+    It may also be used for 1 line macros
+</p>
+
+```ruby
+using_name hello = print Hello, \s world!\n;
+
+hello;
 ```
 
 <h1 align="center">.zvm</a></h1>
@@ -279,7 +289,8 @@ $var
 </p>
 
 ```
-jump line_idx
+jump
+line_idx
 ```
 
 <p align="left">
