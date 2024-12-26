@@ -136,8 +136,8 @@ class Interpreter:
                 self.dest_var = self.line
                 self.advance()
                 self.expression = self.line
-                _eval = Evaluater(self.variables)
-                self.variables[self.dest_var] = _eval.evaluate(self.expression)
+                _eval = Evaluater(self.expression, self.variables)
+                self.variables[self.dest_var] = _eval.evaluate()
             
             elif self.line == "random_var":
                 self.advance()
