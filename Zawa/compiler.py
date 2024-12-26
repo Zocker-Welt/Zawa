@@ -141,8 +141,8 @@ class Compiler:
             elif self.line.startswith("using_name"):
                 self.line = self.line[10:]
                 self.val1, self.val2 = self.line.split("=")
-                self.val1 = self.string(self.val1)
-                self.val2 = self.string(self.val2)
+                self.val1 = self.val1
+                self.val2 = self.val2
                 self.reaplce_code(self.val1, self.val2)
                 #print(self.val1, self.val2, self.code)
             
