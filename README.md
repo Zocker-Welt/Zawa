@@ -1,6 +1,9 @@
 > [!NOTE]  
 > This is a WIP project
 
+> [!NOTE]  
+> This language is for people who are new to coding and it's highly unoptimized
+
 
 <h1 align="center">
     Corrode
