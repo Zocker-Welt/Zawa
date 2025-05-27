@@ -1,5 +1,3 @@
-// Part 7, 8:23
-
 use std::{collections::HashMap, string::String};
 
 fn is_digit(c: char) -> bool {
