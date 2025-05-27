@@ -36,6 +36,43 @@ description:    Floating point number
 example:        31.4
 ```
 
+```js
+name:           String
+description:    Text value
+example:        "Hello, world!"
+```
+
+<h3 align="center">
+    Keywords
+</h3>
+
+```js
+and
+or
+
+true
+false
+
+if
+else
+class
+self
+
+fn
+return
+
+for
+while
+
+null
+
+print
+
+super
+
+let
+```
+
 <h3 align="center">
     Operators
 </h3>
