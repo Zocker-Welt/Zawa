@@ -1,7 +1,40 @@
-use std::string::String;
+// Part 7, 8:23
 
-fn is_digit(ch: char) -> bool {
-    ch as u8 >= '0' as u8 && ch as u8 <= '9' as u8
+use std::{collections::HashMap, string::String};
+
+fn is_digit(c: char) -> bool {
+    let u8c = c as u8;
+    ('0' as u8) <= u8c && u8c <= ('9' as u8)
+}
+
+fn is_alpha(c: char) -> bool {
+    let u8c = c as u8;
+    ( ('a' as u8) <= u8c && u8c <= ('z' as u8) ) || ( ('A' as u8) <= u8c && u8c <= ('Z' as u8) ) || ( c == '_')
+}
+
+fn is_alpha_numeric(c: char) -> bool {
+    is_alpha(c) || is_digit(c)
+}
+
+fn get_keyword_hashmap() -> HashMap<&'static str, TokenType> {
+    HashMap::from([
+        ("and", TokenType::And),
+        ("or", TokenType::Or),
+        ("true", TokenType::True),
+        ("false", TokenType::False),
+        ("if", TokenType::If),
+        ("else", TokenType::Else),
+        ("class", TokenType::Class),
+        ("self", TokenType::Self_),
+        ("fn", TokenType::Fn),
+        ("return", TokenType::Return),
+        ("for", TokenType::For),
+        ("while", TokenType::While),
+        ("null", TokenType::Null),
+        ("print", TokenType::Print),
+        ("super", TokenType::Super),
+        ("let", TokenType::Let)
+    ])
 }
 
 pub struct Scanner {
@@ -10,6 +43,8 @@ pub struct Scanner {
     start: usize,
     current: usize,
     line: usize,
+
+    keywords: HashMap<&'static str, TokenType>,
 }
 
 impl Scanner {
@@ -20,6 +55,7 @@ impl Scanner {
             start: 0,
             current: 0,
             line: 0,
+            keywords: get_keyword_hashmap(),
         }
     }
 
@@ -35,7 +71,7 @@ impl Scanner {
         }
 
         self.tokens.push(Token {
-            token_type: Eof,
+            token_type: TokenType::Eof,
             lexeme: "".to_string(),
             literal: None,
             line_number: self.line
@@ -62,48 +98,48 @@ impl Scanner {
         let c = self.advance();
 
         match c {
-            '(' => self.add_token(LeftParen),
-            ')' => self.add_token(RightParen),
-            '{' => self.add_token(LeftBrace),
-            '}' => self.add_token(RightBrace),
-            ',' => self.add_token(Comma),
-            '.' => self.add_token(Dot),
-            '-' => self.add_token(Minus),
-            '+' => self.add_token(Plus),
-            ';' => self.add_token(Semicolon),
-            '*' => self.add_token(Star),
+            '(' => self.add_token(TokenType::LeftParen),
+            ')' => self.add_token(TokenType::RightParen),
+            '{' => self.add_token(TokenType::LeftBrace),
+            '}' => self.add_token(TokenType::RightBrace),
+            ',' => self.add_token(TokenType::Comma),
+            '.' => self.add_token(TokenType::Dot),
+            '-' => self.add_token(TokenType::Minus),
+            '+' => self.add_token(TokenType::Plus),
+            ';' => self.add_token(TokenType::Semicolon),
+            '*' => self.add_token(TokenType::Star),
             '!' => {
                 let token = if self.char_match('=') {
-                    BangEqual
+                    TokenType::BangEqual
                 } else {
-                    Bang
+                    TokenType::Bang
                 };
 
                 self.add_token(token);
             },
             '=' => {
                 let token = if self.char_match('=') {
-                    EqualEqual
+                    TokenType::EqualEqual
                 } else {
-                    Equal
+                    TokenType::Equal
                 };
 
                 self.add_token(token);
             },
             '<' => {
                 let token = if self.char_match('=') {
-                    LessEqual
+                    TokenType::LessEqual
                 } else {
-                    Less
+                    TokenType::Less
                 };
 
                 self.add_token(token);
             },
             '>' => {
                 let token = if self.char_match('=') {
-                    GreaterEqual
+                    TokenType::GreaterEqual
                 } else {
-                    Greater
+                    TokenType::Greater
                 };
 
                 self.add_token(token);
@@ -117,7 +153,7 @@ impl Scanner {
                         self.advance();
                     }
                 } else {
-                    self.add_token(Slash);
+                    self.add_token(TokenType::Slash);
                 }
             },
             ' ' | '\t' | '\r' => {},
@@ -126,7 +162,9 @@ impl Scanner {
 
             c => {
                 if is_digit(c) {
-                    self.number();
+                    self.number()?;
+                } else if is_alpha(c) {
+                    self.identifier();
                 } else {
                     return Err(format!("Unrecognized char at line {}: {}", self.line, c))
                 }
@@ -134,6 +172,18 @@ impl Scanner {
         }
 
         Ok(())
+    }
+
+    fn identifier(self: &mut Self) {
+        while is_alpha_numeric(self.peek()) {
+            self.advance();
+        }
+        let substring = &self.source[self.start..self.current];
+        if let Some(&token_type) = self.keywords.get(substring) {
+            self.add_token(token_type);
+        } else {
+            self.add_token(TokenType::Identifier);
+        }
     }
 
     fn number(self: &mut Self) -> Result<(), String> {
@@ -152,7 +202,7 @@ impl Scanner {
         let substring = &self.source[self.start..self.current];
         let value = substring.parse::<f64>();
         match value {
-            Ok(value) => self.add_token_lit(Number, Some(FValue(value))),
+            Ok(value) => self.add_token_lit(TokenType::Number, Some(FValue(value))),
             Err(_) => return Err(format!("Could not parse number: {}", substring)),
         }
         
@@ -182,7 +232,7 @@ impl Scanner {
         self.advance();
         let value = &self.source[self.start + 1..self.current - 1];
 
-        self.add_token_lit(StringLit, Some(StringValue(value.to_string())));
+        self.add_token_lit(TokenType::StringLit, Some(StringValue(value.to_string())));
 
         Ok(())
     }
@@ -194,11 +244,11 @@ impl Scanner {
         self.source.chars().nth(self.current).unwrap()
     }
 
-    fn char_match(self: &mut Self, ch: char) -> bool {
+    fn char_match(self: &mut Self, c: char) -> bool {
         if self.is_at_end() {
             return false;
         }
-        if self.source.chars().nth(self.current).unwrap() != ch {
+        if self.source.chars().nth(self.current).unwrap() != c {
             return false;
         } else {
             self.current += 1;
@@ -219,7 +269,7 @@ impl Scanner {
 
     fn add_token_lit(self: &mut Self, token_type: TokenType, literal: Option<LiteralValue>) {
         let mut text = String::new();
-        self.source[self.start..self.current]
+        let _ = self.source[self.start..self.current]
             .chars()
             .map(|c| text.push(c));
 
@@ -232,7 +282,7 @@ impl Scanner {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum TokenType {
     LeftParen,
     RightParen,
@@ -260,25 +310,24 @@ pub enum TokenType {
     Number,
 
     And,
-    Class,
-    Else,
-    False,
-    Func,
-    For,
-    If,
-    Null,
     Or,
-    Print,
-    Return,
-    Super,
-    This,
     True,
-    Let,
+    False,
+    If,
+    Else,
+    Class,
+    Self_,
+    Fn,
+    Return,
+    For,
     While,
+    Null,
+    Print,
+    Super,
+    Let,
 
     Eof
 }
-use TokenType::*;
 
 impl std::fmt::Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -322,8 +371,3 @@ impl Token {
         format!("{} {} {:?}", self.token_type, self.lexeme, self.literal)
     }
 }
-
-/*
-let test = 0.1;
-let teset2 = test + 0.2;
-*/
