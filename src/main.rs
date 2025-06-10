@@ -1,5 +1,5 @@
-mod scanner;
-use crate::scanner::*;
+mod tokenizer;
+use crate::tokenizer::*;
 
 use std::env;
 use std::process::exit;
@@ -7,8 +7,8 @@ use std::fs;
 use std::io::{self, BufRead, Write};
 
 fn run(contents: &str) -> Result<(), String> {
-    let mut scanner = Scanner::new(contents);
-    let tokens = scanner.scan_tokens()?;
+    let mut tokenizer = Tokenizer::new(contents);
+    let tokens = tokenizer.scan_tokens()?;
 
     for token in tokens {
         println!("{:?}", token);
@@ -21,7 +21,6 @@ fn run_file(path: &str) -> Result<(), String> {
         Err(msg) => return Err(msg.to_string()),
         Ok(contents) => return run(&contents),
     }
-    // run(contents);
 }
 
 fn run_prompt() -> Result<(), String> {
