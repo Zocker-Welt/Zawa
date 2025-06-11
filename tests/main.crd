@@ -1,7 +1,9 @@
-let variable = "Hello, world!";
-
-for (let i = 0; i < 5; i += 1) {
-    print "test: ";
-    print i;
-    print " ";
+fn main() {
+    let variable = "Hello, world!";
+    
+    for (let i = 0; i < 5; i += 1) {
+        print "test: ";
+        print i;
+        print " ";
+    }
 }
