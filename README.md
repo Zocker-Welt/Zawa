@@ -1,5 +1,7 @@
 <h1 align="center">Zawa 0.8.0</a></h1>
 
+<h1 align="center">DO NOT USE THIS LANGUAGE. EVERYTHING IS BROKEN AND IT WAS MADE BY A COKE ADDICT</a></h1>
+
 <p align="center">
     <img width="400" src="https://github.com/Zocker-Welt/Zawa/blob/main/wiki/Zawa%20logo%20v3.png" alt="logo">
 </p>
