@@ -1,6 +1,8 @@
 mod tokenizer;
 use crate::tokenizer::*;
 
+mod expr;
+
 use std::env;
 use std::process::exit;
 use std::fs;
