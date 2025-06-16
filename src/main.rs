@@ -3,6 +3,8 @@ use crate::tokenizer::*;
 
 mod expr;
 
+mod parser;
+
 use std::env;
 use std::process::exit;
 use std::fs;

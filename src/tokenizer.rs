@@ -200,7 +200,7 @@ impl Tokenizer {
         let substring = &self.source[self.start..self.current];
         let value = substring.parse::<f64>();
         match value {
-            Ok(value) => self.add_token_lit(TokenType::Number, Some(FValue(value))),
+            Ok(value) => self.add_token_lit(TokenType::Number, Some(LiteralValue::FValue(value))),
             Err(_) => return Err(format!("Could not parse number: {}", substring)),
         }
         
@@ -230,7 +230,7 @@ impl Tokenizer {
         self.advance();
         let value = &self.source[self.start + 1..self.current - 1];
 
-        self.add_token_lit(TokenType::StringLit, Some(StringValue(value.to_string())));
+        self.add_token_lit(TokenType::StringLit, Some(LiteralValue::StringValue(value.to_string())));
 
         Ok(())
     }
@@ -266,10 +266,7 @@ impl Tokenizer {
     }
 
     fn add_token_lit(self: &mut Self, token_type: TokenType, literal: Option<LiteralValue>) {
-        let mut text = String::new();
-        let _ = self.source[self.start..self.current]
-            .chars()
-            .map(|c| text.push(c));
+        let text = String::from(&self.source[self.start..self.current]);
 
         self.tokens.push(Token {
             token_type: token_type,
@@ -280,7 +277,7 @@ impl Tokenizer {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     LeftParen,
     RightParen,
@@ -340,7 +337,6 @@ pub enum LiteralValue {
     StringValue(String),
     IdentifierVal(String)
 }
-use LiteralValue::*;
 
 #[derive(Debug, Clone)]
 pub struct Token {
