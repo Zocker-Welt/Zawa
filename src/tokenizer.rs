@@ -57,7 +57,7 @@ impl Tokenizer {
         }
     }
 
-    pub fn scan_tokens(self: &mut Self) -> Result<Vec<Token>, String> {
+    pub fn tokenize(self: &mut Self) -> Result<Vec<Token>, String> {
         let mut errors = Vec::new();
 
         while !self.is_at_end() {

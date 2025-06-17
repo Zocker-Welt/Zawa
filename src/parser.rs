@@ -1,23 +1,25 @@
+// Only expects expressions - identifiers are not implemented yet
+
 /*
 grammar
 
 expression -> {
-    literal,
-    unary,
-    binary,
+    literal |
+    unary |
+    binary |
     grouping
 }
 
 literal -> {
-    NUMBER, STRING,
-    "true", "false", "null"
+    NUMBER | STRING,
+    "true" | "false" | "null"
 }
 
 grouping -> {
     "(" expression ")"
 }
 unary -> {
-    ("-", "!") expression
+    ("-" | "!") expression
 }
 
 binary -> {
@@ -25,8 +27,8 @@ binary -> {
 }
 
 operator -> {
-    "==", "!=", "<=", ">=", "<", ">",
-    "+", "-", "*", "/"
+    "==" | "!=" | "<=" | ">=" | "<" | ">" |
+    "+" | "-" | "*" | "/"
 }
 */
 
@@ -46,16 +48,20 @@ impl Parser {
         }
     }
 
-    pub fn expression(self: &mut Self) -> Expr {
+    pub fn parse(self: &mut Self) -> Result<Expr, String> {
+        self.expression()
+    }
+
+    fn expression(self: &mut Self) -> Result<Expr, String> {
         self.equality()
     }
 
-    fn equality(self: &mut Self) -> Expr {
-        let mut expr = self.comparison();
+    fn equality(self: &mut Self) -> Result<Expr, String> {
+        let mut expr = self.comparison()?;
         let mut matches_eq = self.match_tokens(&[TokenType::BangEqual, TokenType::EqualEqual]);
         while matches_eq {
             let operator = self.previous();
-            let right = self.comparison();
+            let right = self.comparison()?;
             expr = Expr::Binary {
                 left: Box::from(expr),
                 operator: operator,
@@ -65,15 +71,15 @@ impl Parser {
             matches_eq = self.match_tokens(&[TokenType::BangEqual, TokenType::EqualEqual]);
         }
 
-        expr
+        Ok(expr)
     }
 
-    fn comparison(self: &mut Self) -> Expr {
-        let mut expr = self.term();
+    fn comparison(self: &mut Self) -> Result<Expr, String> {
+        let mut expr = self.term()?;
 
         while self.match_tokens(&[TokenType::Greater, TokenType::Less, TokenType::LessEqual]) {
             let op = self.previous();
-            let right = self.term();
+            let right = self.term()?;
             expr = Expr::Binary {
                 left: Box::from(expr),
                 operator: op,
@@ -81,15 +87,15 @@ impl Parser {
             }
         }
 
-        expr
+        Ok(expr)
     }
 
-    fn term(self: &mut Self) -> Expr {
-        let mut expr = self.factor();
+    fn term(self: &mut Self) -> Result<Expr, String> {
+        let mut expr = self.factor()?;
 
         while self.match_tokens(&[TokenType::Minus, TokenType::Plus]) {
             let op = self.previous();
-            let right = self.factor();
+            let right = self.factor()?;
             expr = Expr::Binary {
                 left: Box::from(expr),
                 operator: op,
@@ -97,15 +103,15 @@ impl Parser {
             }
         }
 
-        expr
+        Ok(expr)
     }
 
-    fn factor(self: &mut Self) -> Expr {
-        let mut expr = self.unary();
+    fn factor(self: &mut Self) -> Result<Expr, String> {
+        let mut expr = self.unary()?;
 
         while self.match_tokens(&[TokenType::Slash, TokenType::Star]) {
             let op = self.previous();
-            let right = self.unary();
+            let right = self.unary()?;
             expr = Expr::Binary {
                 left: Box::from(expr),
                 operator: op,
@@ -113,44 +119,56 @@ impl Parser {
             }
         }
 
-        expr
+        Ok(expr)
     }
 
-    fn unary(self: &mut Self) -> Expr {
+    fn unary(self: &mut Self) -> Result<Expr, String> {
         if self.match_tokens(&[TokenType::Bang, TokenType::Minus]) {
             let op = self.previous();
-            let right = self.unary();
-            Expr::Unary {
+            let right = self.unary()?;
+            Ok(Expr::Unary {
                 operator: op,
                 right: Box::from(right)
-            }
+            })
         } else {
             self.primary()
         }
     }
 
-    fn primary(self: &mut Self) -> Expr {
-        if self.match_token(&TokenType::LeftParen) {
-            let expr = self.expression();
-            self.consume(TokenType::RightParen, "Expected ')'");
-            Expr::Grouping {
-                expression: Box::from(expr)
-            }
-        } else {
-            let token = self.peek();
-            self.advance();
-            Expr::Literal {
-                value: LiteralValue::from_token(token.clone())
-            }
+    fn primary(self: &mut Self) -> Result<Expr, String> {
+        let token = self.peek();
+        
+        let result;
+        match token.token_type {
+            TokenType::LeftParen => {
+                self.advance();
+                let expr = self.expression()?;
+                self.consume(TokenType::RightParen, "Expected ')'")?;
+                result = Expr::Grouping {
+                    expression: Box::from(expr)
+                };
+            },
+            TokenType::True | TokenType::False | TokenType::Null |  TokenType::Number | TokenType::StringLit => {
+                self.advance();
+                result = Expr::Literal {
+                    value: LiteralValue::from_token(token.clone())
+                };
+            },
+            _ => return Err(String::from("Expected expression")),
         }
+
+        //self.advance();
+
+        Ok(result)
     }
 
-    fn consume(self: &mut Self, token_type: TokenType, msg: &str) {
+    fn consume(self: &mut Self, token_type: TokenType, msg: &str) -> Result<(), String> {
         let token = self.peek();
         if token.token_type == token_type {
             self.advance();
+            Ok(())
         } else {
-            panic!("{}", msg);
+            Err(String::from(msg))
         }
     }
 
@@ -195,6 +213,23 @@ impl Parser {
     fn is_at_end(self: &mut Self) -> bool {
         self.peek().token_type == TokenType::Eof
     }
+
+    fn synchronize(self: &mut Self) {
+        self.advance();
+
+        while !self.is_at_end() {
+            if self.previous().token_type == TokenType::Semicolon {
+                return;
+            }
+            match self.peek().token_type {
+                TokenType::Class | TokenType::Fn | TokenType::Let |
+                TokenType::For | TokenType::If | TokenType::While |
+                TokenType::Print | TokenType::Return => return,
+                _ => (),
+            }
+            self.advance();
+        }
+    }
 }
 
 #[cfg(test)]
@@ -232,25 +267,25 @@ mod tests {
         let tokens = vec![one, plus, two, semi];
         let mut parser = Parser::new(tokens);
         
-        let parsed_expr = parser.expression();
+        let parsed_expr = parser.parse().unwrap(); // we dont check for the errors rn
         let string_expr = parsed_expr.to_string();
 
         assert_eq!(string_expr, "(+ 1 2)");
     }
 
     #[test]
-    fn test_comparison() {
-        let src = "1 + 2 == 5 + 7";
+    fn test_equality_with_paren() {
+        let src = "1 == (2 + 3)";
         
         let mut tokenizer = Tokenizer::new(src);
         
-        let tokens = tokenizer.scan_tokens().unwrap();
+        let tokens = tokenizer.tokenize().unwrap();
         
         let mut parser = Parser::new(tokens);
         
-        let parsed_expr = parser.expression();
+        let parsed_expr = parser.parse().unwrap();
         let string_expr = parsed_expr.to_string();
 
-        assert_eq!(string_expr, "(== (+ 1 2) (+ 5 7))")
+        assert_eq!(string_expr, "(== 1 (group (+ 2 3)))")
     }
 }

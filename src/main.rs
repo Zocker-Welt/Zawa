@@ -4,6 +4,7 @@ use crate::tokenizer::*;
 mod expr;
 
 mod parser;
+use crate::parser::*;
 
 use std::env;
 use std::process::exit;
@@ -12,11 +13,14 @@ use std::io::{self, BufRead, Write};
 
 fn run(contents: &str) -> Result<(), String> {
     let mut tokenizer = Tokenizer::new(contents);
-    let tokens = tokenizer.scan_tokens()?;
+    let tokens = tokenizer.tokenize()?;
 
-    for token in tokens {
-        println!("{:?}", token);
-    }
+    let mut parser = Parser::new(tokens);
+    let expr = parser.parse()?;
+    let result = expr.evaluate()?;
+    
+    println!("{}", result.to_string());
+
     return Ok(());
 }
 
