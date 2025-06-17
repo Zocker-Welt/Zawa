@@ -34,7 +34,7 @@
 </h3>
 
 ```js
-name:           float
+name:           Number
 description:    Floating point number
 example:        31.4
 ```
