@@ -25,6 +25,14 @@
 ./corrode
 ```
 
+<p align="left">
+    Run code from file (make sure you are in the directory where the executable is located)
+</p>
+
+```bash
+./corrode [file]
+```
+
 <h1 align="center">
     Documentation
 </h1>
