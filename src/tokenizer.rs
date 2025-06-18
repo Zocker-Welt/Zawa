@@ -57,7 +57,7 @@ impl Tokenizer {
         }
     }
 
-    pub fn tokenize(self: &mut Self) -> Result<Vec<Token>, String> {
+    pub fn tokenize(&mut self) -> Result<Vec<Token>, String> {
         let mut errors = Vec::new();
 
         while !self.is_at_end() {
@@ -88,11 +88,11 @@ impl Tokenizer {
         Ok(self.tokens.clone())
     }
 
-    fn is_at_end(self: &Self) -> bool {
+    fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }
 
-    fn scan_token(self: &mut Self) -> Result<(), String> {
+    fn scan_token(&mut self) -> Result<(), String> {
         let c = self.advance();
 
         match c {
@@ -172,7 +172,7 @@ impl Tokenizer {
         Ok(())
     }
 
-    fn identifier(self: &mut Self) {
+    fn identifier(&mut self) {
         while is_alpha_numeric(self.peek()) {
             self.advance();
         }
@@ -184,7 +184,7 @@ impl Tokenizer {
         }
     }
 
-    fn number(self: &mut Self) -> Result<(), String> {
+    fn number(&mut self) -> Result<(), String> {
         while is_digit(self.peek()) {
             self.advance();
         }
@@ -207,7 +207,7 @@ impl Tokenizer {
         Ok(())
     }
 
-    fn peek_next(self: &Self) -> char {
+    fn peek_next(&self) -> char {
         if self.current + 1 >= self.source.len() {
             return '\0';
         }
@@ -215,7 +215,7 @@ impl Tokenizer {
         self.source.chars().nth(self.current + 1).unwrap()
     }
 
-    fn string(self: &mut Self) -> Result<(), String> {
+    fn string(&mut self) -> Result<(), String> {
         while self.peek() != '"' && !self.is_at_end() {
             if self.peek() == '\n' {
                 self.line += 1;
@@ -235,14 +235,14 @@ impl Tokenizer {
         Ok(())
     }
 
-    fn peek(self: &Self) -> char {
+    fn peek(&self) -> char {
         if self.is_at_end() {
             return '\0';
         }
         self.source.chars().nth(self.current).unwrap()
     }
 
-    fn char_match(self: &mut Self, c: char) -> bool {
+    fn char_match(&mut self, c: char) -> bool {
         if self.is_at_end() {
             return false;
         }
@@ -254,18 +254,18 @@ impl Tokenizer {
         }
     }
 
-    fn advance(self: &mut Self) -> char {
+    fn advance(&mut self) -> char {
         let c = self.source.chars().nth(self.current).unwrap();
         self.current += 1;
 
         c
     }
 
-    fn add_token(self: &mut Self, token_type: TokenType) {
+    fn add_token(&mut self, token_type: TokenType) {
         self.add_token_lit(token_type, None);
     }
 
-    fn add_token_lit(self: &mut Self, token_type: TokenType, literal: Option<LiteralValue>) {
+    fn add_token_lit(&mut self, token_type: TokenType, literal: Option<LiteralValue>) {
         let text = String::from(&self.source[self.start..self.current]);
 
         self.tokens.push(Token {
@@ -361,7 +361,7 @@ impl Token {
         }
     }
 
-    pub fn to_string(self: &Self) -> String {
+    pub fn to_string(&self) -> String {
         format!("{} {} {:?}", self.token_type, self.lexeme, self.literal)
     }
 }

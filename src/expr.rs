@@ -1,8 +1,18 @@
+// 12 43
+
+/*
+For future:
+
+make so in this case it will write String("a")
+>>> true * "a"
+Binary operator Star cannot be applied for operands True, StringValue("a")
+*/
+
 use crate::tokenizer::{Token, TokenType};
 
 use crate::tokenizer;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum LiteralValue {
     Number(f32),
     StringValue(String),
@@ -10,6 +20,7 @@ pub enum LiteralValue {
     False,
     Null
 }
+use LiteralValue::*;
 
 fn unwrap_as_f32(literal: Option<tokenizer::LiteralValue>) -> f32 {
     match literal {
@@ -30,11 +41,21 @@ fn unwrap_as_string(literal: Option<tokenizer::LiteralValue>) -> String {
 impl LiteralValue {
     pub fn to_string(&self) -> String {
         match self {
-            LiteralValue::Number(x) => x.to_string(),
-            LiteralValue::StringValue(s) => s.clone(),
-            LiteralValue::True => String::from("true"),
-            LiteralValue::False => String::from("false"),
-            LiteralValue::Null => String::from("null")
+            Number(x) => x.to_string(),
+            StringValue(s) => s.clone(),
+            True => String::from("true"),
+            False => String::from("false"),
+            Null => String::from("null")
+        }
+    }
+
+    pub fn to_type(&self) -> &str {
+        match self {
+            Number(_) => "Number",
+            StringValue(_) => "String",
+            True => "Boolean",
+            False => "Boolean",
+            Null => "Null"
         }
     }
 
@@ -60,7 +81,7 @@ impl LiteralValue {
     }
 
     pub fn from_bool(b: bool) -> LiteralValue {
-        if b { LiteralValue::True } else { LiteralValue::False }
+        if b { True } else { False }
     }
 }
 
@@ -119,10 +140,10 @@ impl Expr {
                 let right = right.evaluate()?;
 
                 match (&right, operator.token_type) {
-                    (LiteralValue::Number(x), TokenType::Minus) => Ok(LiteralValue::Number(-x)),
-                    (_, TokenType::Minus) => Err(format!("Not implemented for {}", right.to_string())),
+                    (Number(x), TokenType::Minus) => Ok(Number(-x)),
+                    (_, TokenType::Minus) => Err(format!("Minus not implemented for {}", right.to_type())),
                     (any, TokenType::Bang) => Ok(any.is_falsy()),
-                    _ => todo!()
+                    (_, token_type) => Err(format!("{} is not a valid unary operator", token_type))
                 }
             },
             Expr::Binary { left, operator, right} => {
@@ -130,45 +151,35 @@ impl Expr {
                 let right = right.evaluate()?;
 
                 match (&left, operator.token_type, &right) {
-                    // Valid: Number + - * / Number
-                    (LiteralValue::Number(x), TokenType::Plus, LiteralValue::Number(y)) => Ok(LiteralValue::Number(x + y)), // x + y
-                    (LiteralValue::Number(x), TokenType::Minus, LiteralValue::Number(y)) => Ok(LiteralValue::Number(x - y)), // x - y
-                    (LiteralValue::Number(x), TokenType::Star, LiteralValue::Number(y)) => Ok(LiteralValue::Number(x * y)), // x * y
-                    (LiteralValue::Number(x), TokenType::Slash, LiteralValue::Number(y)) => Ok(LiteralValue::Number(x / y)), // x / y
+                    //expreimental
+                    //(Number(x), TokenType::Slash, Number(0.0)) => Err(format!("Binary operator Slash cannot be applied for operands {:?}, Number(0.0)", Number(*x))),
 
-                    // Valid: Number < > <= >= == != String
-                    (LiteralValue::Number(x), TokenType::Less, LiteralValue::Number(y)) => Ok(LiteralValue::from_bool(x < y)), // x < y
-                    (LiteralValue::Number(x), TokenType::Greater, LiteralValue::Number(y)) => Ok(LiteralValue::from_bool(x > y)), // x > y
-                    (LiteralValue::Number(x), TokenType::LessEqual, LiteralValue::Number(y)) => Ok(LiteralValue::from_bool(x <= y)), // x <= y
-                    (LiteralValue::Number(x), TokenType::GreaterEqual, LiteralValue::Number(y)) => Ok(LiteralValue::from_bool(x >= y)), // x >= y
-                    (LiteralValue::Number(x), TokenType::EqualEqual, LiteralValue::Number(y)) => Ok(LiteralValue::from_bool(x == y)), // x == y
-                    (LiteralValue::Number(x), TokenType::BangEqual, LiteralValue::Number(y)) => Ok(LiteralValue::from_bool(x != y)), // x != y
+                    (Number(x), TokenType::Plus, Number(y)) => Ok(Number(x + y)),
+                    (Number(x), TokenType::Minus, Number(y)) => Ok(Number(x - y)),
+                    (Number(x), TokenType::Star, Number(y)) => Ok(Number(x * y)),
+                    (Number(x), TokenType::Slash, Number(y)) => Ok(Number(x / y)),
 
-                    // Invalid: Number + - * / < > <= >= == != String
-                    // Invalid: String + - * / < > <= >= == != Number
-                    (LiteralValue::StringValue(s), operator, LiteralValue::Number(x)) => Err(format!("Invalid binary operator: {} for string: \"{}\", number: {}", operator, s, x)), // s op x
-                    (LiteralValue::Number(x), operator, LiteralValue::StringValue(s)) => Err(format!("Invalid binary operator: {} for number: {}, string: \"{}\"", operator, x, s)), // x op s
-                    
-                    // Invalid: String - * / String
-                    (LiteralValue::StringValue(s1), TokenType::Minus, LiteralValue::StringValue(s2)) => Err(format!("Invalid binary operator: Minus for string: \"{}\", string: \"{}\"", s1, s2)), // s1 - s2
-                    (LiteralValue::StringValue(s1), TokenType::Star, LiteralValue::StringValue(s2)) => Err(format!("Invalid binary operator: Star for string: \"{}\", string: \"{}\"", s1, s2)), // s1 * s2
-                    (LiteralValue::StringValue(s1), TokenType::Slash, LiteralValue::StringValue(s2)) => Err(format!("Invalid binary operator: Slash for string: \"{}\", string: \"{}\"", s1, s2)), // s1 / s2
+                    (Number(x), TokenType::Greater, Number(y)) => Ok(LiteralValue::from_bool(x > y)),
+                    (Number(x), TokenType::GreaterEqual, Number(y)) => Ok(LiteralValue::from_bool(x >= y)),
+                    (Number(x), TokenType::Less, Number(y)) => Ok(LiteralValue::from_bool(x < y)),
+                    (Number(x), TokenType::LessEqual, Number(y)) => Ok(LiteralValue::from_bool(x <= y)),
 
-                    // Valid: String + String
-                    (LiteralValue::StringValue(s1), TokenType::Plus, LiteralValue::StringValue(s2)) => Ok(LiteralValue::StringValue(format!("{}{}", s1, s2))), // s1 + s2
-                    
-                    // Valid: String < > <= >= == != String
-                    (LiteralValue::StringValue(s1), TokenType::Less, LiteralValue::StringValue(s2)) => Ok(LiteralValue::from_bool(s1 < s2)), // s1 < s2
-                    (LiteralValue::StringValue(s1), TokenType::Greater, LiteralValue::StringValue(s2)) => Ok(LiteralValue::from_bool(s1 > s2)), // s1 > s2
-                    (LiteralValue::StringValue(s1), TokenType::LessEqual, LiteralValue::StringValue(s2)) => Ok(LiteralValue::from_bool(s1 <= s2)), // s1 <= s2
-                    (LiteralValue::StringValue(s1), TokenType::GreaterEqual, LiteralValue::StringValue(s2)) => Ok(LiteralValue::from_bool(s1 >= s2)), // s1 >= s2
-                    (LiteralValue::StringValue(s1), TokenType::EqualEqual, LiteralValue::StringValue(s2)) => Ok(LiteralValue::from_bool(s1 == s2)), // s1 == s2
-                    (LiteralValue::StringValue(s1), TokenType::BangEqual, LiteralValue::StringValue(s2)) => Ok(LiteralValue::from_bool(s1 != s2)), // s1 != s2
+                    (StringValue(s), operator, Number(x)) => Err(format!("Binary operator {} cannot be applied for operands {:?}, {:?}", operator, StringValue(String::from(s)), Number(*x))),
+                    (Number(x), operator, StringValue(s)) => Err(format!("Binary operator {} cannot be applied for operands {:?}, {:?}", operator, Number(*x), StringValue(String::from(s)))),
 
-                    _ => todo!()
+                    (StringValue(s1), TokenType::Plus, StringValue(s2)) => Ok(StringValue(format!("{}{}", s1, s2))),
+
+                    (a, TokenType::BangEqual, b) => Ok(LiteralValue::from_bool(a != b)),
+                    (a, TokenType::EqualEqual, b) => Ok(LiteralValue::from_bool(a == b)),
+
+                    (StringValue(s1), TokenType::Greater, StringValue(s2)) => Ok(LiteralValue::from_bool(s1 > s2)),
+                    (StringValue(s1), TokenType::GreaterEqual, StringValue(s2)) => Ok(LiteralValue::from_bool(s1 >= s2)),
+                    (StringValue(s1), TokenType::Less, StringValue(s2)) => Ok(LiteralValue::from_bool(s1 < s2)),
+                    (StringValue(s1), TokenType::LessEqual, StringValue(s2)) => Ok(LiteralValue::from_bool(s1 <= s2)),
+
+                    (a, token_type, b) => Err(format!("Binary operator {} cannot be applied for operands {:?}, {:?}", token_type, a, b)),
                 }
-            },
-            _ => todo!()
+            }
         }
     }
 
@@ -191,12 +202,12 @@ mod tests {
         };
 
         let ott = Expr::Literal { // 123
-            value: LiteralValue::Number(123.0)
+            value: Number(123.0)
         };
 
         let group = Expr::Grouping {
             expression: Box::from(Expr::Literal {
-                value: LiteralValue::Number(45.67)
+                value: Number(45.67)
             })
         };
 

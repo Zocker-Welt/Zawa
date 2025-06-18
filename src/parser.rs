@@ -48,15 +48,15 @@ impl Parser {
         }
     }
 
-    pub fn parse(self: &mut Self) -> Result<Expr, String> {
+    pub fn parse(&mut self) -> Result<Expr, String> {
         self.expression()
     }
 
-    fn expression(self: &mut Self) -> Result<Expr, String> {
+    fn expression(&mut self) -> Result<Expr, String> {
         self.equality()
     }
 
-    fn equality(self: &mut Self) -> Result<Expr, String> {
+    fn equality(&mut self) -> Result<Expr, String> {
         let mut expr = self.comparison()?;
         let mut matches_eq = self.match_tokens(&[TokenType::BangEqual, TokenType::EqualEqual]);
         while matches_eq {
@@ -74,10 +74,10 @@ impl Parser {
         Ok(expr)
     }
 
-    fn comparison(self: &mut Self) -> Result<Expr, String> {
+    fn comparison(&mut self) -> Result<Expr, String> {
         let mut expr = self.term()?;
 
-        while self.match_tokens(&[TokenType::Greater, TokenType::Less, TokenType::LessEqual]) {
+        while self.match_tokens(&[TokenType::Greater, TokenType::GreaterEqual , TokenType::Less, TokenType::LessEqual]) {
             let op = self.previous();
             let right = self.term()?;
             expr = Expr::Binary {
@@ -90,7 +90,7 @@ impl Parser {
         Ok(expr)
     }
 
-    fn term(self: &mut Self) -> Result<Expr, String> {
+    fn term(&mut self) -> Result<Expr, String> {
         let mut expr = self.factor()?;
 
         while self.match_tokens(&[TokenType::Minus, TokenType::Plus]) {
@@ -106,7 +106,7 @@ impl Parser {
         Ok(expr)
     }
 
-    fn factor(self: &mut Self) -> Result<Expr, String> {
+    fn factor(&mut self) -> Result<Expr, String> {
         let mut expr = self.unary()?;
 
         while self.match_tokens(&[TokenType::Slash, TokenType::Star]) {
@@ -122,7 +122,7 @@ impl Parser {
         Ok(expr)
     }
 
-    fn unary(self: &mut Self) -> Result<Expr, String> {
+    fn unary(&mut self) -> Result<Expr, String> {
         if self.match_tokens(&[TokenType::Bang, TokenType::Minus]) {
             let op = self.previous();
             let right = self.unary()?;
@@ -135,7 +135,7 @@ impl Parser {
         }
     }
 
-    fn primary(self: &mut Self) -> Result<Expr, String> {
+    fn primary(&mut self) -> Result<Expr, String> {
         let token = self.peek();
         
         let result;
@@ -162,7 +162,7 @@ impl Parser {
         Ok(result)
     }
 
-    fn consume(self: &mut Self, token_type: TokenType, msg: &str) -> Result<(), String> {
+    fn consume(&mut self, token_type: TokenType, msg: &str) -> Result<(), String> {
         let token = self.peek();
         if token.token_type == token_type {
             self.advance();
@@ -172,7 +172,7 @@ impl Parser {
         }
     }
 
-    fn match_token(self: &mut Self, type_: &TokenType) -> bool {
+    fn match_token(&mut self, type_: &TokenType) -> bool {
         if self.is_at_end() {
             false
         } else {
@@ -185,7 +185,7 @@ impl Parser {
         }
     }
 
-    fn match_tokens(self: &mut Self, types: &[TokenType]) -> bool {
+    fn match_tokens(&mut self, types: &[TokenType]) -> bool {
         for type_ in types {
             if self.match_token(type_) {
                 return true;
@@ -195,26 +195,26 @@ impl Parser {
         false
     }
 
-    fn advance(self: &mut Self) -> Token {
+    fn advance(&mut self) -> Token {
         if !self.is_at_end() {
             self.current += 1
         }
         self.previous()
     }
 
-    fn peek(self: &mut Self) -> Token {
+    fn peek(&mut self) -> Token {
         self.tokens[self.current].clone()
     }
 
-    fn previous(self: &mut Self) -> Token {
+    fn previous(&mut self) -> Token {
         self.tokens[self.current - 1].clone()
     }
 
-    fn is_at_end(self: &mut Self) -> bool {
+    fn is_at_end(&mut self) -> bool {
         self.peek().token_type == TokenType::Eof
     }
 
-    fn synchronize(self: &mut Self) {
+    fn synchronize(&mut self) {
         self.advance();
 
         while !self.is_at_end() {

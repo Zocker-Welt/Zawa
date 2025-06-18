@@ -6,18 +6,23 @@ mod expr;
 mod parser;
 use crate::parser::*;
 
+mod interpreter;
+use crate::interpreter::*;
+
 use std::env;
 use std::process::exit;
 use std::fs;
 use std::io::{self, BufRead, Write};
 
-fn run(contents: &str) -> Result<(), String> {
+fn run(interpreter: &mut Interpreter, contents: &str) -> Result<(), String> {
     let mut tokenizer = Tokenizer::new(contents);
     let tokens = tokenizer.tokenize()?;
+    //println!("{:?}", tokens);
 
     let mut parser = Parser::new(tokens);
     let expr = parser.parse()?;
-    let result = expr.evaluate()?;
+    //expr.print();
+    let result = interpreter.interpret(expr)?;
     
     println!("{}", result.to_string());
 
@@ -25,13 +30,17 @@ fn run(contents: &str) -> Result<(), String> {
 }
 
 fn run_file(path: &str) -> Result<(), String> {
+    let mut interpreter = Interpreter::new();
+
     match fs::read_to_string(path) {
         Err(msg) => return Err(msg.to_string()),
-        Ok(contents) => return run(&contents),
+        Ok(contents) => return run(&mut interpreter, &contents),
     }
 }
 
 fn run_prompt() -> Result<(), String> {
+    let mut interpreter = Interpreter::new();
+
     loop {
         print!(">>> ");
         match io::stdout().flush() {
@@ -52,7 +61,7 @@ fn run_prompt() -> Result<(), String> {
         }
 
         //println!("Echo: {}", buffer);
-        match run(&buffer) {
+        match run(&mut interpreter, &buffer) {
             Ok(_) => (),
             Err(msg) => println!("{}", msg),
         }
