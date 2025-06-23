@@ -9,6 +9,11 @@ use crate::parser::*;
 mod interpreter;
 use crate::interpreter::*;
 
+mod stmt;
+use crate::stmt::Stmt;
+
+mod environment;
+
 use std::env;
 use std::process::exit;
 use std::fs;
@@ -17,14 +22,11 @@ use std::io::{self, BufRead, Write};
 fn run(interpreter: &mut Interpreter, contents: &str) -> Result<(), String> {
     let mut tokenizer = Tokenizer::new(contents);
     let tokens = tokenizer.tokenize()?;
-    //println!("{:?}", tokens);
 
     let mut parser = Parser::new(tokens);
-    let expr = parser.parse()?;
-    //expr.print();
-    let result = interpreter.interpret(expr)?;
+    let stmts = parser.parse()?;
     
-    println!("{}", result.to_string());
+    interpreter.interpret(stmts)?;
 
     return Ok(());
 }

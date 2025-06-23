@@ -38,6 +38,17 @@
 </h1>
 
 <h3 align="center">
+    Quick tutorial
+</h1>
+
+```js
+
+print expression;
+let name = value;
+let name;
+```
+
+<h3 align="center">
     Data types
 </h3>
 
@@ -51,6 +62,18 @@ example:        31.4
 name:           String
 description:    Text value
 example:        "Hello, world!"
+```
+
+```js
+name:           bollean
+description:    bollean value
+examples:        true, false
+```
+
+```js
+name:           null
+description:    null value
+example:        null
 ```
 
 <h3 align="center">

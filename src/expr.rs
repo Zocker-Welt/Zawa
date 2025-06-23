@@ -9,8 +9,8 @@ Binary operator Star cannot be applied for operands True, StringValue("a")
 */
 
 use crate::tokenizer::{Token, TokenType};
-
 use crate::tokenizer;
+use crate::environment::Environment;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum LiteralValue {
@@ -100,7 +100,10 @@ pub enum Expr {
     Unary {
         operator: Token,
         right: Box<Expr>
-    }
+    },
+    Variable {
+        name: Token
+    },
 }
 
 impl Expr {
@@ -129,15 +132,25 @@ impl Expr {
                 let right_str = right.to_string();
                 format!("({} {})", operator_str, right_str)
             },
+            Expr::Variable { name } => format!(
+                "var {}",
+                name.lexeme
+            ),
         }
     }
 
-    pub fn evaluate(&self) -> Result<LiteralValue, String> {
+    pub fn evaluate(&self, environment: &Environment) -> Result<LiteralValue, String> {
         match self {
+            Expr::Variable { name } => {
+                match environment.get(&name.lexeme) {
+                    Some(value) => Ok(value.clone()),
+                    None => Err(format!("{} was not declared", name.lexeme))
+                }
+            },
             Expr::Literal { value } => Ok(value.clone()),
-            Expr::Grouping { expression } => expression.evaluate(),
+            Expr::Grouping { expression } => expression.evaluate(environment),
             Expr::Unary {operator, right} => {
-                let right = right.evaluate()?;
+                let right = right.evaluate(environment)?;
 
                 match (&right, operator.token_type) {
                     (Number(x), TokenType::Minus) => Ok(Number(-x)),
@@ -147,8 +160,8 @@ impl Expr {
                 }
             },
             Expr::Binary { left, operator, right} => {
-                let left = left.evaluate()?;
-                let right = right.evaluate()?;
+                let left = left.evaluate(environment)?;
+                let right = right.evaluate(environment)?;
 
                 match (&left, operator.token_type, &right) {
                     //expreimental
