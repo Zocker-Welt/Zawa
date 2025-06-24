@@ -28,10 +28,11 @@ letDecl -> {
 }
 
 expression -> {
-    literal |
-    unary |
-    binary |
-    grouping
+    assignment
+}
+
+assignment -> {
+    IDENTIFIER "=" (assignment | equality)
 }
 
 literal -> {
@@ -149,7 +150,23 @@ impl Parser {
     }
 
     fn expression(&mut self) -> Result<Expr, String> {
-        self.equality()
+        self.assignment()
+    }
+
+    fn assignment(&mut self) -> Result<Expr, String> {
+        let expr = self.equality()?;
+
+        if self.match_token(TokenType::Equal) {
+            let equals = self.previous();
+            let value = self.assignment()?;
+
+            match expr {
+                Expr::Variable { name } => Ok(Expr::Assign { name: name, value: Box::from(value) }),
+                _ => Err(format!("Invalid assingment target"))
+            }
+        } else {
+            return Ok(expr);
+        }
     }
 
     fn equality(&mut self) -> Result<Expr, String> {

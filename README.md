@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Corrode 0.3.0
+    Corrode 0.4.3
 </h1>
 
 <p align="center">
@@ -42,10 +42,11 @@
 </h1>
 
 ```js
-
-print expression;
-let name = value;
-let name;
+print expression;   // Write to io a value
+let name = value;   // Create a variable and instantly give it a value
+let name;           // Create a variable (the variable's value is null)
+new_var = value;    // Create a variable (must have a value)
+print name = value  // Variable assignment is an expression (not a statement). It returns the new value 
 ```
 
 <h3 align="center">

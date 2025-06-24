@@ -104,6 +104,10 @@ pub enum Expr {
     Variable {
         name: Token
     },
+    Assign {
+        name: Token,
+        value: Box<Expr>
+    },
 }
 
 impl Expr {
@@ -136,11 +140,31 @@ impl Expr {
                 "var {}",
                 name.lexeme
             ),
+            Expr::Assign { name, value } => format!(
+                "{} = {}",
+                name.lexeme, value.to_string()
+            ),
         }
     }
 
-    pub fn evaluate(&self, environment: &Environment) -> Result<LiteralValue, String> {
+    pub fn evaluate(&self, environment: &mut Environment) -> Result<LiteralValue, String> {
         match self {
+            Expr::Assign { name, value } => {
+                let get_value = environment.get(&name.lexeme);
+                match get_value {
+                    Some(_) => {
+                        let new_value = (*value).evaluate(environment)?;
+                        environment.define(name.lexeme.clone(), new_value.clone());
+                        Ok(new_value)
+                    },
+                    None => {
+                        //Err(format!("{} was not declared", name.lexeme))
+                        let new_value = (*value).evaluate(environment)?;
+                        environment.define(name.lexeme.clone(), new_value.clone());
+                        Ok(new_value)
+                    },
+                }
+            }
             Expr::Variable { name } => {
                 match environment.get(&name.lexeme) {
                     Some(value) => Ok(value.clone()),
