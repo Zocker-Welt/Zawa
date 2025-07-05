@@ -13,24 +13,71 @@
     An interpreter written in rust
 </p>
 
+
+<h1 align="center">
+    Setup
+</h1>
+
+<p align="left">
+    1. Download zip
+</p>
+
+<p align="left">
+    2. Extract all
+</p>
+
+<p align="left">
+    3. Go to the directory
+</p>
+
+<p align="left">
+    4. Build it
+</p>
+
+```ps
+cargo b --release
+```
+
+<p align="left">
+    5. Add to path
+</p>
+
+```ps
+# Windows
+[Environment]::SetEnvironmentVariable("PATH", "$($env:PATH);
+Path_to_the_directory_where_corrode_is_located", "User ")
+```
+
+```bash
+vim ~/.bashrc
+```
+Add line
+```bash
+export PATH="$PATH:Path_to_the_directory_where_corrode_is_located"
+```
+exit and apply changes
+```bash
+source ~/.bashrc
+```
+
 <h1 align="center">
     Usage
 </h1>
 
 <p align="left">
-    Open the shell (make sure you are in the directory where the executable is located)
+    Open the shell
 </p>
 
 ```bash
-./corrode
+corrode
 ```
 
 <p align="left">
-    Run code from file (make sure you are in the directory where the executable is located)
+    Run code from file
 </p>
 
 ```bash
-./corrode [file]
+corrode [file]
 ```
 
 <h1 align="center">
