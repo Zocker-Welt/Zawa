@@ -62,16 +62,16 @@ fn run_prompt() -> Result<(), String> {
             Err(_) => return Err("Couldn't read line".to_string()),
         }
 
-        //println!("Echo: {}", buffer);
         match run(&mut interpreter, &buffer) {
             Ok(_) => (),
-            Err(msg) => println!("{}", msg),
+            Err(msg) => println!("Error: {}", msg),
         }
     }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    
     if args.len() > 2 {
         println!("Usage: \"corrode [file]\"");
         exit(64);
@@ -79,17 +79,14 @@ fn main() {
         match run_file(&args[1]) {
             Ok(_) => exit(0),
             Err(msg) => {
-                println!("Error:\n{}", msg);
+                println!("Error: {}", msg);
                 exit(1);
             }
         }
     } else {
         match run_prompt() {
             Ok(_) => exit(0),
-            Err(msg) => {
-                println!("Error:\n{}", msg);
-                exit(1);
-            }
+            Err(msg) => exit(1)
         }
     }
 }

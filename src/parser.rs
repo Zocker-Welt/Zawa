@@ -12,8 +12,18 @@ declaration -> {
 }
 
 statement -> {
-    exprStmt | printStmt
+    exprStmt |
+    printStmt |
+    block |
+    ifStmt
 }
+
+ifStmt -> {
+    "if (" expression ")" statement ("else" statement)?
+}
+
+block -> {
+    "{" declaration* "}"
 
 exprStmt -> {
     expression ";"
@@ -132,9 +142,42 @@ impl Parser {
     fn statement(&mut self) -> Result<Stmt, String> {
         if self.match_token(TokenType::Print) {
             self.print_statement()
+        } else if self.match_token(TokenType::LeftBrace) {
+            self.block_statement()
+        } else if self.match_token(TokenType::If) {
+            self.if_statement()
         } else {
             self.expression_statement()
         }
+    }
+
+    fn if_statement(&mut self) -> Result<Stmt, String> {
+        self.consume(TokenType::LeftParen, "Expected '(' after 'if'")?;
+        let predicate = self.expression()?;
+        self.consume(TokenType::RightParen, "Expected ')' after if predicate")?;
+
+        let then = Box::new(self.statement()?);
+
+        let otherwise =  if self.match_token(TokenType::Else) {
+            let stmt = self.statement()?;
+            Some(Box::new(stmt))
+        } else {
+            None
+        };
+
+        Ok(Stmt::If { predicate: predicate, then: then, otherwise: otherwise})
+    }
+
+    fn block_statement(&mut self) -> Result<Stmt, String> {
+        let mut statements = Vec::new();
+
+        while !self.check(TokenType::RightBrace) && !self.is_at_end() {
+            let decl = self.declaration()?;
+            statements.push(decl);
+        }
+
+        self.consume(TokenType::RightBrace, "Expected '}' after block")?;
+        Ok(Stmt::Block { statements })
     }
 
     fn print_statement(&mut self) -> Result<Stmt, String> {
@@ -292,6 +335,10 @@ impl Parser {
         }
     }
 
+    fn check(&mut self, type_: TokenType) -> bool {
+        self.peek().token_type == type_
+    }
+
     fn match_token(&mut self, type_: TokenType) -> bool {
         if self.is_at_end() {
             false
@@ -358,44 +405,8 @@ mod tests {
     use crate::tokenizer::{LiteralValue, Tokenizer};
 
     #[test]
-    fn  test_addition() {
-        let one = Token {
-            token_type: TokenType::Number,
-            lexeme: String::from("1"),
-            literal: Some(LiteralValue::IntValue(1)),
-            line_number: 0
-        };
-        let plus = Token {
-            token_type: TokenType::Plus,
-            lexeme: String::from("+"),
-            literal: None,
-            line_number: 0
-        };
-        let two = Token {
-            token_type: TokenType::Number,
-            lexeme: String::from("2"),
-            literal: Some(LiteralValue::IntValue(2)),
-            line_number: 0
-        };
-        let semi = Token {
-            token_type: TokenType::Semicolon,
-            lexeme: String::from(";"),
-            literal: None,
-            line_number: 0
-        };
-
-        let tokens = vec![one, plus, two, semi];
-        let mut parser = Parser::new(tokens);
-        
-        let parsed_expr = parser.parse().unwrap(); // we dont check for the errors rn
-        let string_expr = parsed_expr.to_string();
-
-        assert_eq!(string_expr, "(+ 1 2)");
-    }
-
-    #[test]
     fn test_equality_with_paren() {
-        let src = "1 == (2 + 3)";
+        let src = "1 == (2 + 3);";
         
         let mut tokenizer = Tokenizer::new(src);
         
@@ -404,7 +415,7 @@ mod tests {
         let mut parser = Parser::new(tokens);
         
         let parsed_expr = parser.parse().unwrap();
-        let string_expr = parsed_expr.to_string();
+        let string_expr = parsed_expr[0].to_string();
 
         assert_eq!(string_expr, "(== 1 (group (+ 2 3)))")
     }

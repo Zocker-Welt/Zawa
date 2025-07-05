@@ -1,11 +1,10 @@
-let variable = "Hello, world!";
-  
-for (let i = 0; i < 5; i = i + 1) {
-  print("test: ");
-  print(i);
-  print(" ");
-}
+let variable = 1;
 
 {
-  a = 3;
+  print variable;
+  let a = "dsf";
+  print a;
 }
+
+print variable;
+print a;
