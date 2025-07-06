@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Corrode 0.6.0
+    Corrode 0.7.0
 </h1>
 
 <p align="center">
