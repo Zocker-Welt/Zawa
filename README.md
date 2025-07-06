@@ -49,6 +49,7 @@ Path_to_the_directory_where_corrode_is_located", "User ")
 ```
 
 ```bash
+# Linux
 vim ~/.bashrc
 ```
 Add line
