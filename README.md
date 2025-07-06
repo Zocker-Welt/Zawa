@@ -89,18 +89,34 @@ corrode [file]
 </h1>
 
 ```js
-// Comment
-print expression;   // Write to io a value
-let name = value;   // Create a variable and instantly give it a value
-let name;           // Create a variable (the variable's value is null)
-new_var = value;    // Create a variable (must have a value)
-print name = value  // Variable assignment is an expression (not a statement). It returns the new value
+// This is a comment
+
+// Write to io
+print expression;
+
+// Variable declaration
+let name = value;
+let name; // the variable's value is null
+
+// Variable assignment
+new_var = value;
+print name = value // Variable assignment is an expression (not a statement). It returns the new value
+
 if (condition) {
     print "This is an if";
 } else {
     // Optional
     print "This is an else";
 }
+
+// Or
+print "stringval" or false; // Writes stringval
+print false or "stringval"; // Writes stringval
+
+
+// And
+print "stringval" and true; // Writes true
+print true and "stringval"; // Writes stringval
 ```
 
 <h3 align="center">

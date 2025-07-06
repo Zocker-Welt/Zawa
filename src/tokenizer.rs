@@ -154,6 +154,7 @@ impl Tokenizer {
                     self.add_token(TokenType::Slash);
                 }
             },
+
             ' ' | '\t' | '\r' => {},
             '\n' => self.line += 1,
             '"' => self.string()?,

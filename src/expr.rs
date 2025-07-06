@@ -107,6 +107,11 @@ pub enum Expr {
     Literal {
         value: LiteralValue
     },
+    Logical {
+        left: Box<Expr>,
+        operator: Token,
+        right: Box<Expr>
+    },
     Unary {
         operator: Token,
         right: Box<Expr>
@@ -141,6 +146,12 @@ impl Expr {
                 "{}",
                 value.to_string()
             ),
+            Expr::Logical { left, operator, right } => format!(
+                "({} {} {})",
+                operator.lexeme,
+                left.to_string(),
+                right.to_string()
+            ),
             Expr::Unary { operator, right} => {
                 let operator_str = operator.lexeme.clone();
                 let right_str = right.to_string();
@@ -166,16 +177,39 @@ impl Expr {
                 if assign_success {
                     Ok(new_value)
                 } else {
-                    Err(format!("{} was not declared", name.lexeme))
+                    Err(format!("{} was not declared in this scope", name.lexeme))
                 }
             }
             Expr::Variable { name } => {
                 match environment.get(&name.lexeme) {
                     Some(value) => Ok(value.clone()),
-                    None => Err(format!("{} was not declared", name.lexeme))
+                    None => Err(format!("{} was not declared in this scope", name.lexeme))
                 }
             },
             Expr::Literal { value } => Ok(value.clone()),
+            Expr::Logical { left, operator, right } => {
+                match operator.token_type {
+                    TokenType::Or => {
+                        let lhs_value = left.evaluate(environment)?;
+                        let lhs_true = lhs_value.is_truthy();
+                        if lhs_true == True {
+                            return Ok(lhs_value);
+                        } else {
+                            return right.evaluate(environment);
+                        }
+                    },
+                    TokenType::And => {
+                        let lhs_value = left.evaluate(environment)?;
+                        let lhs_true = lhs_value.is_truthy();
+                        if lhs_true == False {
+                            return Ok(lhs_value);
+                        } else {
+                            return right.evaluate(environment);
+                        }
+                    },
+                    token_type => return Err(format!("Invalid token in logical expression: {}", token_type)),
+                }
+            },
             Expr::Grouping { expression } => expression.evaluate(environment),
             Expr::Unary {operator, right} => {
                 let right = right.evaluate(environment)?;
