@@ -11,6 +11,8 @@ Binary operator Star cannot be applied for operands True, StringValue("a")
 use crate::tokenizer::{Token, TokenType};
 use crate::tokenizer;
 use crate::environment::Environment;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum LiteralValue {
@@ -168,11 +170,11 @@ impl Expr {
         }
     }
 
-    pub fn evaluate(&self, environment: &mut Environment) -> Result<LiteralValue, String> {
+    pub fn evaluate(&self, environment: Rc<RefCell<Environment>>) -> Result<LiteralValue, String> {
         match self {
             Expr::Assign { name, value } => {
-                let new_value = (*value).evaluate(environment)?;
-                let assign_success = environment.assign(&name.lexeme, new_value.clone());
+                let new_value = (*value).evaluate(environment.clone())?;
+                let assign_success = environment.borrow_mut().assign(&name.lexeme, new_value.clone());
 
                 if assign_success {
                     Ok(new_value)
@@ -181,7 +183,7 @@ impl Expr {
                 }
             }
             Expr::Variable { name } => {
-                match environment.get(&name.lexeme) {
+                match environment.borrow().get(&name.lexeme) {
                     Some(value) => Ok(value.clone()),
                     None => Err(format!("{} was not declared in this scope", name.lexeme))
                 }
@@ -190,29 +192,29 @@ impl Expr {
             Expr::Logical { left, operator, right } => {
                 match operator.token_type {
                     TokenType::Or => {
-                        let lhs_value = left.evaluate(environment)?;
+                        let lhs_value = left.evaluate(environment.clone())?;
                         let lhs_true = lhs_value.is_truthy();
                         if lhs_true == True {
                             return Ok(lhs_value);
                         } else {
-                            return right.evaluate(environment);
+                            return right.evaluate(environment.clone());
                         }
                     },
                     TokenType::And => {
-                        let lhs_value = left.evaluate(environment)?;
+                        let lhs_value = left.evaluate(environment.clone())?;
                         let lhs_true = lhs_value.is_truthy();
                         if lhs_true == False {
                             return Ok(lhs_value);
                         } else {
-                            return right.evaluate(environment);
+                            return right.evaluate(environment.clone());
                         }
                     },
                     token_type => return Err(format!("Invalid token in logical expression: {}", token_type)),
                 }
             },
-            Expr::Grouping { expression } => expression.evaluate(environment),
+            Expr::Grouping { expression } => expression.evaluate(environment.clone()),
             Expr::Unary {operator, right} => {
-                let right = right.evaluate(environment)?;
+                let right = right.evaluate(environment.clone())?;
 
                 match (&right, operator.token_type) {
                     (Number(x), TokenType::Minus) => Ok(Number(-x)),
@@ -222,8 +224,8 @@ impl Expr {
                 }
             },
             Expr::Binary { left, operator, right} => {
-                let left = left.evaluate(environment)?;
-                let right = right.evaluate(environment)?;
+                let left = left.evaluate(environment.clone())?;
+                let right = right.evaluate(environment.clone())?;
 
                 match (&left, operator.token_type, &right) {
                     //expreimental

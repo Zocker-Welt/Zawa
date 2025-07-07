@@ -26,7 +26,7 @@ fn run(interpreter: &mut Interpreter, contents: &str) -> Result<(), String> {
     let mut parser = Parser::new(tokens);
     let stmts = parser.parse()?;
     
-    interpreter.interpret(stmts)?;
+    interpreter.interpret(stmts.iter().collect())?;
 
     return Ok(());
 }
@@ -71,9 +71,10 @@ fn run_prompt() -> Result<(), String> {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    println!("{}", args[0]);
     
     if args.len() > 2 {
-        println!("Usage: \"corrode [file]\"");
+        println!("Usage: \"zawa [file]\"");
         exit(64);
     } else if args.len() == 2 {
         match run_file(&args[1]) {

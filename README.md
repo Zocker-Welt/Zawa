@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Corrode 0.7.0
+    Zawa 0.8.0
 </h1>
 
 <p align="center">
@@ -45,7 +45,7 @@ cargo b --release
 ```ps
 # Windows
 [Environment]::SetEnvironmentVariable("PATH", "$($env:PATH);
-Path_to_the_directory_where_corrode_is_located", "User ")
+Path_to_the_directory_where_zawa_executable_is_located", "User ")
 ```
 
 ```bash
@@ -54,7 +54,7 @@ vim ~/.bashrc
 ```
 Add line
 ```bash
-export PATH="$PATH:Path_to_the_directory_where_corrode_is_located"
+export PATH="$PATH:Path_to_the_directory_where_zawa_executable_is_located"
 ```
 exit and apply changes
 ```bash
@@ -70,7 +70,7 @@ source ~/.bashrc
 </p>
 
 ```bash
-corrode
+zawa
 ```
 
 <p align="left">
@@ -78,7 +78,7 @@ corrode
 </p>
 
 ```bash
-corrode [file]
+zawa [file]
 ```
 
 <h1 align="center">
@@ -103,13 +103,6 @@ let name; // the variable's value is null
 new_var = value;
 print name = value // Variable assignment is an expression (not a statement). It returns the new value
 
-if (condition) {
-    print "This is an if";
-} else {
-    // Optional
-    print "This is an else";
-}
-
 // Or
 print "stringval" or false; // Writes stringval
 print false or "stringval"; // Writes stringval
@@ -118,6 +111,17 @@ print false or "stringval"; // Writes stringval
 // And
 print "stringval" and true; // Writes true
 print true and "stringval"; // Writes stringval
+
+if (condition) {
+    print "This is an if";
+} else {
+    // Optional
+    print "This is an else";
+}
+
+while (condition) {
+    print "This is a while";
+}
 ```
 
 <h3 align="center">

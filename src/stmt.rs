@@ -5,8 +5,9 @@ pub enum Stmt {
     Expression { expression: Expr },
     Print { expression: Expr },
     Let { name: Token, initializer: Expr },
-    Block { statements: Vec<Stmt> },
+    Block { statements: Vec<Box<Stmt>> },
     If { predicate: Expr, then: Box<Stmt>, otherwise: Option<Box<Stmt>> },
+    While { condition: Expr,  body: Box<Stmt> }
 }
 
 impl Stmt {
@@ -19,7 +20,9 @@ impl Stmt {
                 "(block {})",
                 statements.into_iter().map(|stmt| stmt.to_string()).collect::<String>()
             ),
-            Stmt::If { predicate, then, otherwise } => todo!()
+            Stmt::If { predicate, then, otherwise } => todo!(),
+            Stmt::While { condition, body } => todo!(),
+        
         }
     }
 }
