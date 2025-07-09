@@ -11,17 +11,18 @@ pub enum Stmt {
 }
 
 impl Stmt {
+    #[allow(dead_code)]
     pub fn to_string(&self) -> String {
         match self {
             Stmt::Expression { expression } =>expression.to_string() ,
             Stmt::Print { expression } => format!("(print {})", expression.to_string()),
-            Stmt::Let { name, initializer } => format!("(let {})", name.lexeme),
+            Stmt::Let { name, initializer: _ } => format!("(let {})", name.lexeme),
             Stmt::Block { statements } => format!(
                 "(block {})",
                 statements.into_iter().map(|stmt| stmt.to_string()).collect::<String>()
             ),
-            Stmt::If { predicate, then, otherwise } => todo!(),
-            Stmt::While { condition, body } => todo!(),
+            Stmt::If { predicate: _, then: _, otherwise: _ } => todo!(),
+            Stmt::While { condition: _ , body: _ } => todo!(),
         
         }
     }

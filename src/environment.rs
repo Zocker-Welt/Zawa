@@ -48,11 +48,10 @@ impl Environment {
 
 #[cfg(test)]
 mod tests {
-    use crate::environment;
-
     use super::*;
+
     #[test]
     fn try_unit() {
-        let environment = Environment::new();
+        let _environment = Environment::new();
     }
 }

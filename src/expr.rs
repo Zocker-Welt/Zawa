@@ -26,7 +26,6 @@ use LiteralValue::*;
 
 fn unwrap_as_f32(literal: Option<tokenizer::LiteralValue>) -> f32 {
     match literal {
-        Some(tokenizer::LiteralValue::IntValue(x)) => x as f32,
         Some(tokenizer::LiteralValue::FValue(x)) => x as f32,
         _ => panic!("Could not unwrap as f32")
     }
@@ -35,7 +34,6 @@ fn unwrap_as_f32(literal: Option<tokenizer::LiteralValue>) -> f32 {
 fn unwrap_as_string(literal: Option<tokenizer::LiteralValue>) -> String {
     match literal {
         Some(tokenizer::LiteralValue::StringValue(s)) => s.clone(),
-        Some(tokenizer::LiteralValue::IdentifierVal(s)) => s.clone(),
         _ => panic!("Could not unwrap as string")
     }
 }
@@ -128,6 +126,7 @@ pub enum Expr {
 }
 
 impl Expr {
+    #[allow(dead_code)]
     pub fn to_string(&self) -> String {
         match self {
             Expr::Binary {
@@ -260,6 +259,7 @@ impl Expr {
         }
     }
 
+    #[allow(dead_code)]
     pub fn print(&self) {
         println!("{}", self.to_string());
     }
@@ -288,12 +288,12 @@ mod tests {
             })
         };
 
-        let mul = Token::new(
-            TokenType::Star,
-            String::from("*"),
-            None,
-            0
-        );
+        let mul = Token {
+            token_type: TokenType::Star,
+            lexeme: String::from("*"),
+            literal: None,
+            line_number: 0
+        };
 
         let ast = Expr::Binary {
             left: Box::from(Expr::Unary {

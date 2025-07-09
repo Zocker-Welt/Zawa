@@ -1,4 +1,4 @@
-use crate::expr::{Expr, LiteralValue};
+use crate::expr::LiteralValue;
 use crate::stmt::Stmt;
 use crate::environment::Environment;
 use std::rc::Rc;

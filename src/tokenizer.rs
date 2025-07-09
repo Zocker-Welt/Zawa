@@ -333,12 +333,11 @@ impl std::fmt::Display for TokenType {
 
 #[derive(Debug, Clone)]
 pub enum LiteralValue {
-    IntValue(i64),
     FValue(f64),
-    StringValue(String),
-    IdentifierVal(String)
+    StringValue(String)
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: TokenType,
@@ -348,20 +347,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(
-        token_type: TokenType,
-        lexeme: String,
-        literal: Option<LiteralValue>,
-        line_number: usize
-    ) -> Self {
-        Self {
-            token_type: token_type,
-            lexeme: lexeme,
-            literal: literal,
-            line_number: line_number
-        }
-    }
-
+    #[allow(dead_code)]
     pub fn to_string(&self) -> String {
         format!("{} {} {:?}", self.token_type, self.lexeme, self.literal)
     }

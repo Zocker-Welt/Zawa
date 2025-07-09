@@ -1,3 +1,5 @@
+mod tests;
+
 mod tokenizer;
 use crate::tokenizer::*;
 
@@ -10,7 +12,6 @@ mod interpreter;
 use crate::interpreter::*;
 
 mod stmt;
-use crate::stmt::Stmt;
 
 mod environment;
 
@@ -31,7 +32,7 @@ fn run(interpreter: &mut Interpreter, contents: &str) -> Result<(), String> {
     return Ok(());
 }
 
-fn run_file(path: &str) -> Result<(), String> {
+pub fn run_file(path: &str) -> Result<(), String> {
     let mut interpreter = Interpreter::new();
 
     match fs::read_to_string(path) {
@@ -71,7 +72,6 @@ fn run_prompt() -> Result<(), String> {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("{}", args[0]);
     
     if args.len() > 2 {
         println!("Usage: \"zawa [file]\"");
@@ -87,7 +87,7 @@ fn main() {
     } else {
         match run_prompt() {
             Ok(_) => exit(0),
-            Err(msg) => exit(1)
+            Err(_) => exit(1)
         }
     }
 }

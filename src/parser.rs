@@ -136,7 +136,7 @@ impl Parser {
     fn let_declaration(&mut self) -> Result<Stmt, String> {
         let token = self.consume(TokenType::Identifier, "Expected variable name")?;
 
-        let mut initializer;
+        let initializer;
         if self.match_token(TokenType::Equal) {
             initializer = self.expression()?;
         } else {
@@ -219,7 +219,6 @@ impl Parser {
         let expr = self.or()?;
 
         if self.match_token(TokenType::Equal) {
-            let equals = self.previous();
             let value = self.assignment()?;
 
             match expr {
@@ -444,7 +443,7 @@ impl Parser {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tokenizer::{LiteralValue, Tokenizer};
+    use crate::tokenizer::Tokenizer;
 
     #[test]
     fn test_equality_with_paren() {

@@ -2,11 +2,11 @@
 > This is a WIP project
 
 > [!NOTE]  
-> This language is for people who are new to coding and it's highly unoptimized
+> It's very slow
 
 
 <h1 align="center">
-    Zawa 0.8.0
+    Zawa 0.8.1
 </h1>
 
 <p align="center">
