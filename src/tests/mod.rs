@@ -62,9 +62,29 @@ mod tests {
     }
 
     #[test]
-    fn interpret_fib() {
+    fn interpret_for_0_8() {
         let output = Command::new("cargo")
-            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fib.zw"])
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/for_0_8.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 6);
+        assert_eq!(lines[0], "0");
+        assert_eq!(lines[1], "1");
+        assert_eq!(lines[2], "2");
+        assert_eq!(lines[3], "3");
+        assert_eq!(lines[4], "4");
+    }
+
+    #[test]
+    fn interpret_for() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/for.zw"])
             .output()
             .unwrap();
 

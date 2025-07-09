@@ -15,7 +15,21 @@ statement -> {
     exprStmt |
     printStmt |
     block |
-    ifStmt
+    ifStmt |
+    whileStmt |
+    forStmt
+}
+
+forStmt -> {
+    "for" "("
+    ( letDecl | exprStmt | ";") 
+    expression? ";"
+    expression? ")"
+    statement
+}
+
+whileStmt -> {
+    "while" "(" expression ")" statement
 }
 
 ifStmt -> {
@@ -156,15 +170,81 @@ impl Parser {
             self.if_statement()
         } else if self.match_token(TokenType::While) {
             self.while_statement()
+        } else if self.match_token(TokenType::For) {
+            self.for_statement()
         } else {
             self.expression_statement()
         }
     }
 
+    fn for_statement(&mut self) -> Result<Stmt, String> {
+        self.consume(TokenType::LeftParen, "Expected '(' after for")?;
+        
+        let initializer;
+        if self.match_token(TokenType::Semicolon) {
+            initializer = None;
+        } else if self.match_token(TokenType::Let) {
+            let let_decl = self.let_declaration()?;
+            initializer = Some(let_decl);
+        } else {
+            let expr = self.expression_statement()?;
+            initializer = Some(expr);
+        }
+
+        let condition;
+        if !self.check(TokenType::Semicolon) {
+            let expr = self.expression()?;
+            condition = Some(expr);
+        } else {
+            condition = None;
+        }
+
+        self.consume(TokenType::Semicolon, "Expected ';' after for loop condition")?;
+
+        let incrementer;
+        if !self.check(TokenType::RightParen) {
+            let expr = self.expression()?;
+            incrementer = Some(expr);
+        } else {
+            incrementer = None;
+        }
+        
+        self.consume(TokenType::RightParen, "Expected ')' after for loop clauses")?;
+
+        let mut body = self.statement()?;
+
+        if let Some(incr) = incrementer {
+            body = Stmt::Block {
+                statements: vec![
+                    Box::new(body),
+                    Box::new(Stmt::Expression { expression: incr })
+                ]
+            };
+        }
+
+        let cond;
+        match condition {
+            None => cond = Expr::Literal { value: LiteralValue::True },
+            Some(c) => cond = c,
+        }
+        body = Stmt::While {
+            condition: cond,
+            body: Box::new(body),
+        };
+
+        if let Some(init) = initializer {
+            body = Stmt::Block {
+                statements: vec![Box::new(init), Box::new(body)]
+            };
+        }
+
+        Ok(body)
+    }
+
     fn while_statement(&mut self) -> Result< Stmt, String> {
         self.consume(TokenType::LeftParen, "Expected '(' after while")?;
         let condition = self.expression()?;
-        self.consume(TokenType::RightParen, "Expected ')' after condition")?;
+        self.consume(TokenType::RightParen, "Expected ')' after while loop condition")?;
         let body = Box::new(self.statement()?);
 
         Ok(Stmt::While { condition: condition, body: body})

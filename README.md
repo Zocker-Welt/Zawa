@@ -6,13 +6,31 @@
 
 
 <h1 align="center">
-    Zawa 0.8.1
+    Zawa 0.9.0
 </h1>
 
-<p align="center">
-    An interpreter written in rust
-</p>
+<h1 style="text-align: center;">
+  <img src="zawa_logo.svg" alt="Zawa Logo" style="height: 320px;">
+</h1>
 
+<h1 align="center">
+    Examples
+</h1>
+
+<h3 align="left">
+    Fibonacci
+</h3>
+
+```js
+let a = 0;
+let temp;
+
+for (let b = 1; a < 100; b = temp + b) {
+    print a;
+    temp = a;
+    a = b;
+}
+```
 
 <h1 align="center">
     Setup
@@ -112,6 +130,8 @@ print false or "stringval"; // Writes stringval
 print "stringval" and true; // Writes true
 print true and "stringval"; // Writes stringval
 
+
+// If and else
 if (condition) {
     print "This is an if";
 } else {
@@ -119,8 +139,14 @@ if (condition) {
     print "This is an else";
 }
 
+// While loop
 while (condition) {
-    print "This is a while";
+    print "This is a while loop";
+}
+
+// For loop
+for (initializer; condition; incrementer) {
+    print "This is a for loop"
 }
 ```
 

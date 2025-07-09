@@ -7,7 +7,8 @@ pub enum Stmt {
     Let { name: Token, initializer: Expr },
     Block { statements: Vec<Box<Stmt>> },
     If { predicate: Expr, then: Box<Stmt>, otherwise: Option<Box<Stmt>> },
-    While { condition: Expr,  body: Box<Stmt> }
+    While { condition: Expr,  body: Box<Stmt> },
+    //For { let_decl: Option<Box<Stmt>>, expr_stmt: Option<Box<Stmt>>, condition: Option<Expr>, incrementer: Option<Expr>, body: Box<Stmt>}
 }
 
 impl Stmt {
@@ -22,8 +23,8 @@ impl Stmt {
                 statements.into_iter().map(|stmt| stmt.to_string()).collect::<String>()
             ),
             Stmt::If { predicate: _, then: _, otherwise: _ } => todo!(),
-            Stmt::While { condition: _ , body: _ } => todo!(),
-        
+            Stmt::While { condition: _, body: _ } => todo!(),
+            //Stmt::For {let_decl _, expr_stmt: _, condition: _, incrementer: _, body: _ }
         }
     }
 }
