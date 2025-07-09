@@ -1,8 +1,0 @@
-let a = 100000;
-
-while (a) {
-    a = a - 1;
-    print "In while loop";
-}
-
-print "Ended while loop";
