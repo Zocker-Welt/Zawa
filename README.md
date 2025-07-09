@@ -6,10 +6,10 @@
 
 
 <h1 align="center">
-    Zawa 0.9.0
+    Zawa 0.9.1
 </h1>
 
-<h1 style="text-align: center;">
+<h1 align="center">
   <img src="zawa_logo.svg" alt="Zawa Logo" style="height: 320px;">
 </h1>
 
