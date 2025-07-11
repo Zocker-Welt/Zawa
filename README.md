@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Zawa 0.9.1
+    Zawa 0.10.0
 </h1>
 
 <h1 align="center">
@@ -26,7 +26,7 @@ let a = 0;
 let temp;
 
 for (let b = 1; a < 100; b = temp + b) {
-    print a;
+    echo a;
     temp = a;
     a = b;
 }
@@ -111,7 +111,9 @@ zawa [file]
 // This is a comment
 
 // Write to io
-print expression;
+print(expression)
+println(expression)
+echo expression; // Outdated (may be removed soon)
 
 // Variable declaration
 let name = value;
@@ -119,35 +121,45 @@ let name; // the variable's value is null
 
 // Variable assignment
 new_var = value;
-print name = value // Variable assignment is an expression (not a statement). It returns the new value
+echo name = value // Variable assignment is an expression (not a statement). It returns the new value
 
 // Or
-print "stringval" or false; // Writes stringval
-print false or "stringval"; // Writes stringval
+echo "stringval" or false; // Writes stringval
+echo false or "stringval"; // Writes stringval
 
 
 // And
-print "stringval" and true; // Writes true
-print true and "stringval"; // Writes stringval
+echo "stringval" and true; // Writes true
+echo true and "stringval"; // Writes stringval
 
 
 // If and else
 if (condition) {
-    print "This is an if";
+    echo "This is an if";
 } else {
     // Optional
-    print "This is an else";
+    echo "This is an else";
 }
 
 // While loop
 while (condition) {
-    print "This is a while loop";
+    echo "This is a while loop";
 }
 
 // For loop
 for (initializer; condition; incrementer) {
-    print "This is a for loop"
+    echo "This is a for loop"
 }
+```
+
+<h3 align="center">
+    Standart Library
+</h3>
+
+```js
+time() // returns the current time in seconds since the unix time epoch
+print(arg) // writes to io
+println(arg) // writes a line to io
 ```
 
 <h3 align="center">
@@ -202,7 +214,7 @@ while
 
 null
 
-print
+echo
 
 super
 

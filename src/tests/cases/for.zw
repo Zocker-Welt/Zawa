@@ -2,7 +2,7 @@ let a = 0;
 let temp;
 
 for (let b = 1; a < 100; b = temp + b) {
-    print a;
+    echo a;
     temp = a;
     a = b;
 }

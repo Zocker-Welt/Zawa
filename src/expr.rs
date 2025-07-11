@@ -11,23 +11,60 @@ Binary operator Star cannot be applied for operands True, StringValue("a")
 use crate::tokenizer::{Token, TokenType};
 use crate::tokenizer;
 use crate::environment::Environment;
+use std::env;
 use std::rc::Rc;
 use std::cell::RefCell;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone)]
 pub enum LiteralValue {
-    Number(f32),
+    Number(f64),
     StringValue(String),
     True,
     False,
-    Null
+    Null,
+    Callable { 
+        name: String,
+        arity: usize,
+        fn_: Rc<dyn Fn(&Vec<LiteralValue>) -> LiteralValue>,
+    },
 }
 use LiteralValue::*;
 
-fn unwrap_as_f32(literal: Option<tokenizer::LiteralValue>) -> f32 {
+impl std::fmt::Debug for LiteralValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.to_string())
+    }
+}
+
+impl PartialEq for LiteralValue {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Number(x), Number(y)) => x == y,
+            (
+                Callable {
+                    name,
+                    arity,
+                    fn_: _
+                },
+                Callable {
+                    name: name2,
+                    arity: arity2,
+                    fn_: _
+                }
+            ) => name == name2 && arity == arity2,
+            (StringValue(s1), StringValue(s2)) => s1 == s2,
+            (True, True) => true,
+            (False, False) => true,
+            (Null, Null) => true,
+            _ => false,
+        }
+    }
+}
+
+fn unwrap_as_f64(literal: Option<tokenizer::LiteralValue>) -> f64 {
     match literal {
-        Some(tokenizer::LiteralValue::FValue(x)) => x as f32,
-        _ => panic!("Could not unwrap as f32")
+        Some(tokenizer::LiteralValue::FValue(x)) => x as f64,
+        _ => panic!("Could not unwrap as f64")
     }
 }
 
@@ -45,7 +82,8 @@ impl LiteralValue {
             StringValue(s) => s.clone(),
             True => String::from("true"),
             False => String::from("false"),
-            Null => String::from("null")
+            Null => String::from("null"),
+            Callable { name, arity , fn_: _ } => format!("{}/{}", name, arity)
         }
     }
 
@@ -55,13 +93,14 @@ impl LiteralValue {
             StringValue(_) => "String",
             True => "Boolean",
             False => "Boolean",
-            Null => "Null"
+            Null => "Null",
+            Callable { name: _, arity: _ , fn_: _ } => "Callable"
         }
     }
 
     pub fn from_token(token: Token) -> Self {
         match token.token_type {
-            TokenType::Number => Self::Number(unwrap_as_f32(token.literal)),
+            TokenType::Number => Self::Number(unwrap_as_f64(token.literal)),
             TokenType::StringLit => Self::StringValue(unwrap_as_string(token.literal)),
             TokenType::True => Self::True,
             TokenType::False => Self::False,
@@ -76,7 +115,8 @@ impl LiteralValue {
             Self::StringValue(s) => if s.len() == 0 { Self::True } else { Self::False },
             Self::True => Self::False,
             Self::False => Self::True,
-            Self::Null => Self::True
+            Self::Null => Self::True,
+            Self::Callable { name: _, arity: _ , fn_: _ } => Self::False
         }
     }
 
@@ -86,7 +126,8 @@ impl LiteralValue {
             Self::StringValue(s) => if s.len() == 0 { Self::False } else { Self::True },
             Self::True => Self::True,
             Self::False => Self::False,
-            Self::Null => Self::False
+            Self::Null => Self::False,
+            Self::Callable { name: _, arity: _, fn_: _ } => Self::True
         }
     }
 
@@ -103,6 +144,11 @@ pub enum Expr {
     },
     Grouping {
         expression: Box<Expr>
+    },
+    Call {
+        callee: Box<Expr>,
+        paren: Token,
+        arguments: Vec<Expr>,
     },
     Literal {
         value: LiteralValue
@@ -125,6 +171,12 @@ pub enum Expr {
     },
 }
 
+impl std::fmt::Debug for Expr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.to_string())
+    }
+}
+
 impl Expr {
     #[allow(dead_code)]
     pub fn to_string(&self) -> String {
@@ -138,6 +190,11 @@ impl Expr {
                 operator.lexeme,
                 left.to_string(),
                 right.to_string()
+            ),
+            Expr::Call { callee, paren: _, arguments} => format!(
+                "({} {:?})",
+                (*callee).to_string(),
+                arguments
             ),
             Expr::Grouping { expression } => format!(
                 "(group {})",
@@ -180,7 +237,31 @@ impl Expr {
                 } else {
                     Err(format!("{} was not declared in this scope", name.lexeme))
                 }
-            }
+            },
+            Expr::Call { callee, paren, arguments } => {
+                let callable = (*callee).evaluate(environment.clone())?;
+                match callable {
+                    Callable { name, arity, fn_} => {
+                        if arguments.len() != arity {
+                            return Err(format!(
+                                "Callable {} expected {} arguments but {} were given",
+                                name,
+                                arity,
+                                arguments.len()
+                            ));
+                        }
+
+                        let mut arg_vals = Vec::new();
+                        for arg in arguments {
+                            let val = arg.evaluate(environment.clone())?;
+                            arg_vals.push(val);
+                        }
+                        
+                        Ok(fn_(&arg_vals))
+                    },
+                    other => Err(format!("{} is not callable", other.to_string()))
+                }
+            },
             Expr::Variable { name } => {
                 match environment.borrow().get(&name.lexeme) {
                     Some(value) => Ok(value.clone()),

@@ -13,7 +13,7 @@ declaration -> {
 
 statement -> {
     exprStmt |
-    printStmt |
+    echoStmt |
     block |
     ifStmt |
     whileStmt |
@@ -43,8 +43,8 @@ exprStmt -> {
     expression ";"
 }
 
-printStmt -> {
-    "print" expression ";"
+echoStmt -> {
+    "echo" expression ";"
 }
 
 letDecl -> {
@@ -84,7 +84,15 @@ grouping -> {
 }
 
 unary -> {
-    ("-" | "!") expression
+    ("-" | "!") unary | call
+}
+
+call -> {
+    primary ( "(" arguments? ")" )*
+}
+
+arguments -> {
+    expression ("," expression)*
 }
 
 binary -> {
@@ -162,8 +170,8 @@ impl Parser {
     }
 
     fn statement(&mut self) -> Result<Stmt, String> {
-        if self.match_token(TokenType::Print) {
-            self.print_statement()
+        if self.match_token(TokenType::Echo) {
+            self.echo_statement()
         } else if self.match_token(TokenType::LeftBrace) {
             self.block_statement()
         } else if self.match_token(TokenType::If) {
@@ -279,10 +287,10 @@ impl Parser {
         Ok(Stmt::Block { statements })
     }
 
-    fn print_statement(&mut self) -> Result<Stmt, String> {
+    fn echo_statement(&mut self) -> Result<Stmt, String> {
         let value = self.expression()?;
         self.consume(TokenType::Semicolon, "Expected ';' after value")?;
-        Ok(Stmt::Print { expression: value })
+        Ok(Stmt::Echo { expression: value })
     }
 
     fn expression_statement(&mut self) -> Result<Stmt, String> {
@@ -408,8 +416,44 @@ impl Parser {
                 right: Box::from(right)
             })
         } else {
-            self.primary()
+            self.call()
         }
+    }
+
+    fn call(&mut self) -> Result<Expr, String> {
+        let mut expr = self.primary()?;
+
+        loop {
+            if self.match_token(TokenType::LeftParen) {
+                expr = self.finish_call(expr)?;
+            } else {
+                break;
+            }
+        }
+
+        Ok(expr)
+    }
+
+    fn finish_call(&mut self, callee: Expr) -> Result<Expr, String> {
+        let mut arguments = Vec::new();
+        
+        if !self.check(TokenType::RightParen) {
+            loop {
+                let arg = self.expression()?;
+                arguments.push(arg);
+                if arguments.len() > 256 {
+                    let location = self.peek().line_number;
+                    return Err(format!("line: {}, Can not have more than 256 function arguments", location));
+                }
+
+                if !self.match_token(TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+        let paren = self.consume(TokenType::RightParen, "Expected ')' after arguments")?;
+
+        Ok(Expr::Call { callee: Box::new(callee), paren: paren, arguments: arguments })
     }
 
     fn primary(&mut self) -> Result<Expr, String> {
@@ -512,7 +556,7 @@ impl Parser {
             match self.peek().token_type {
                 TokenType::Class | TokenType::Fn | TokenType::Let |
                 TokenType::For | TokenType::If | TokenType::While |
-                TokenType::Print | TokenType::Return => return,
+                TokenType::Echo | TokenType::Return => return,
                 _ => (),
             }
             self.advance();

@@ -29,7 +29,7 @@ fn get_keyword_hashmap() -> HashMap<&'static str, TokenType> {
         ("for", TokenType::For),
         ("while", TokenType::While),
         ("null", TokenType::Null),
-        ("print", TokenType::Print),
+        ("echo", TokenType::Echo),
         ("super", TokenType::Super),
         ("let", TokenType::Let)
     ])
@@ -165,7 +165,7 @@ impl Tokenizer {
                 } else if is_alpha(c) {
                     self.identifier();
                 } else {
-                    return Err(format!("Unrecognized char at line {}: {}", self.line, c))
+                    return Err(format!("line: {}, Unrecognized char: {}", self.line, c))
                 }
             }
         }
@@ -318,7 +318,7 @@ pub enum TokenType {
     For,
     While,
     Null,
-    Print,
+    Echo,
     Super,
     Let,
 
