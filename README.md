@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Zawa 0.10.0
+    Zawa 0.11.0
 </h1>
 
 <h1 align="center">
@@ -124,31 +124,38 @@ new_var = value;
 echo name = value // Variable assignment is an expression (not a statement). It returns the new value
 
 // Or
-echo "stringval" or false; // Writes stringval
-echo false or "stringval"; // Writes stringval
+println("stringval" or false); // Writes stringval
+println(false or "stringval"); // Writes stringval
 
 
 // And
-echo "stringval" and true; // Writes true
-echo true and "stringval"; // Writes stringval
+println("stringval" and true); // Writes true
+println(true and "stringval"); // Writes stringval
 
 
 // If and else
 if (condition) {
-    echo "This is an if";
+    print("This is an if");
 } else {
     // Optional
-    echo "This is an else";
+    println("This is an else");
 }
 
 // While loop
 while (condition) {
-    echo "This is a while loop";
+    println("This is a while loop");
 }
 
 // For loop
 for (initializer; condition; incrementer) {
-    echo "This is a for loop"
+    println("This is a for loop");
+}
+
+// Exit a block (code in {} is a block)
+if (condition) {
+    println("This will ve written to io");
+    break;
+    println("This won't be written to io");
 }
 ```
 

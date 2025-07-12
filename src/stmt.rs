@@ -8,14 +8,14 @@ pub enum Stmt {
     Block { statements: Vec<Box<Stmt>> },
     If { predicate: Expr, then: Box<Stmt>, otherwise: Option<Box<Stmt>> },
     While { condition: Expr,  body: Box<Stmt> },
-    //For { let_decl: Option<Box<Stmt>>, expr_stmt: Option<Box<Stmt>>, condition: Option<Expr>, incrementer: Option<Expr>, body: Box<Stmt>}
+    Break
 }
 
 impl Stmt {
     #[allow(dead_code)]
     pub fn to_string(&self) -> String {
         match self {
-            Stmt::Expression { expression } =>expression.to_string() ,
+            Stmt::Expression { expression } => expression.to_string() ,
             Stmt::Echo { expression } => format!("(print {})", expression.to_string()),
             Stmt::Let { name, initializer: _ } => format!("(let {})", name.lexeme),
             Stmt::Block { statements } => format!(
@@ -24,7 +24,7 @@ impl Stmt {
             ),
             Stmt::If { predicate: _, then: _, otherwise: _ } => todo!(),
             Stmt::While { condition: _, body: _ } => todo!(),
-            //Stmt::For {let_decl _, expr_stmt: _, condition: _, incrementer: _, body: _ }
+            Stmt::Break => String::from("(break)")
         }
     }
 }

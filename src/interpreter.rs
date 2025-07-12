@@ -3,10 +3,10 @@ use crate::stmt::Stmt;
 use crate::environment::Environment;
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::time::SystemTime;
 
 pub struct Interpreter {
     environment: Rc<RefCell<Environment>>,
+    should_break: bool,
 }
 
 fn time_impl(_args: &Vec<LiteralValue>) -> LiteralValue {
@@ -57,6 +57,7 @@ impl Interpreter {
 
         Self {
             environment: Rc::new(RefCell::new(globals)),
+            should_break: false
         }
     }
 
@@ -85,7 +86,10 @@ impl Interpreter {
                     let block_result =  self.interpret((*statements).iter().map(|b| b.as_ref()).collect());
                     self.environment = old_environment;
 
-                    block_result?
+                    block_result?;
+                    if self.should_break {
+                        return Ok(());
+                    }
                 },
                 Stmt::If { predicate, then, otherwise } => {
                     let truth_value = predicate.evaluate(self.environment.clone())?;
@@ -97,6 +101,9 @@ impl Interpreter {
                         let statements = vec![else_stmt.as_ref()];
                         self.interpret(statements)?;
                     }
+                    if self.should_break {
+                        return Ok(());
+                    }
                 },
                 Stmt::While { condition, body } => {
                     let mut flag = condition.evaluate(self.environment.clone())?;
@@ -104,10 +111,22 @@ impl Interpreter {
                     while flag.is_truthy()  == LiteralValue::True {
                         let statements = vec![body.as_ref()];
                         self.interpret(statements)?;
+                        if self.should_break {
+                            self.should_break = false;
+                            break;
+                        }
                         flag = condition.evaluate(self.environment.clone())?;
                     }
-                }
+                },
+                Stmt::Break => {
+                    self.should_break = true;
+                    return Ok(());
+                },
             };
+            
+            if self.should_break {
+                return Ok(());
+            }
         }
         Ok(())
     }

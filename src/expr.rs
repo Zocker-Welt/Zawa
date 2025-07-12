@@ -11,7 +11,6 @@ Binary operator Star cannot be applied for operands True, StringValue("a")
 use crate::tokenizer::{Token, TokenType};
 use crate::tokenizer;
 use crate::environment::Environment;
-use std::env;
 use std::rc::Rc;
 use std::cell::RefCell;
 

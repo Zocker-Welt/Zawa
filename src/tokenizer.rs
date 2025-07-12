@@ -31,7 +31,8 @@ fn get_keyword_hashmap() -> HashMap<&'static str, TokenType> {
         ("null", TokenType::Null),
         ("echo", TokenType::Echo),
         ("super", TokenType::Super),
-        ("let", TokenType::Let)
+        ("let", TokenType::Let),
+        ("break", TokenType::Break)
     ])
 }
 
@@ -321,6 +322,7 @@ pub enum TokenType {
     Echo,
     Super,
     Let,
+    Break,
 
     Eof
 }

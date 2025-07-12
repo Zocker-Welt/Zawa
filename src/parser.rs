@@ -17,7 +17,12 @@ statement -> {
     block |
     ifStmt |
     whileStmt |
-    forStmt
+    forStmt |
+    breakStmt
+}
+
+breakStmt -> {
+    "break" ";"
 }
 
 forStmt -> {
@@ -180,9 +185,16 @@ impl Parser {
             self.while_statement()
         } else if self.match_token(TokenType::For) {
             self.for_statement()
+        } else if self.match_token(TokenType::Break) {
+            self.break_statement()
         } else {
             self.expression_statement()
         }
+    }
+
+    fn break_statement(&mut self) -> Result<Stmt, String> {
+        self.consume(TokenType::Semicolon, "Expected ';' after break statement")?;
+        Ok(Stmt::Break)
     }
 
     fn for_statement(&mut self) -> Result<Stmt, String> {

@@ -107,4 +107,26 @@ mod tests {
             assert_eq!(lines[10], "55");
             assert_eq!(lines[11], "89");
     }
+
+    #[test]
+    fn interpret_break() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/break.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 8);
+        assert_eq!(lines[0], "0 1 2 3 4 5 ");
+        assert_eq!(lines[1], "0 1 2 3 4 5 ");
+        assert_eq!(lines[2], "0 1 2 3 4 5 ");
+        assert_eq!(lines[3], "0 1 2 3 4 5 ");
+        assert_eq!(lines[4], "0 1 2 3 4 5 ");
+        assert_eq!(lines[5], "0 1 2 3 4 5 ");
+        assert_eq!(lines[6], "That's correct!");
+    }
 }
