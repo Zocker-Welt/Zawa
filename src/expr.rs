@@ -24,7 +24,7 @@ pub enum LiteralValue {
     Callable { 
         name: String,
         arity: usize,
-        fn_: Rc<dyn Fn(&Vec<LiteralValue>) -> LiteralValue>,
+        fn_: Rc<dyn Fn(Rc<RefCell<Environment>>, &Vec<LiteralValue>) -> LiteralValue>,
     },
 }
 use LiteralValue::*;
@@ -135,6 +135,7 @@ impl LiteralValue {
     }
 }
 
+#[derive(Clone)]
 pub enum Expr {
     Binary {
         left: Box<Expr>,
@@ -256,7 +257,7 @@ impl Expr {
                             arg_vals.push(val);
                         }
                         
-                        Ok(fn_(&arg_vals))
+                        Ok(fn_(environment.clone(), &arg_vals))
                     },
                     other => Err(format!("{} is not callable", other.to_string()))
                 }

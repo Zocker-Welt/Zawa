@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Zawa 0.11.0
+    Zawa 0.12.0
 </h1>
 
 <h1 align="center">
@@ -157,6 +157,16 @@ if (condition) {
     break;
     println("This won't be written to io");
 }
+
+// Create a function
+fn sum(a, b) {
+    println(a + b);
+    a + b; // The last expression is the return value (If you dont write it the program crashes)
+}
+
+// Call a function
+sum(1, 2);
+let result = sum(1, 2);
 ```
 
 <h3 align="center">

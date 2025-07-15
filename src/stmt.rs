@@ -1,6 +1,7 @@
 use crate::expr::Expr;
 use crate::tokenizer::Token;
 
+#[derive(Clone)]
 pub enum Stmt {
     Expression { expression: Expr },
     Echo { expression: Expr },
@@ -8,7 +9,8 @@ pub enum Stmt {
     Block { statements: Vec<Box<Stmt>> },
     If { predicate: Expr, then: Box<Stmt>, otherwise: Option<Box<Stmt>> },
     While { condition: Expr,  body: Box<Stmt> },
-    Break
+    Break,
+    Function { name: Token, params: Vec<Token>, body: Vec<Box<Stmt>> },
 }
 
 impl Stmt {
@@ -24,7 +26,8 @@ impl Stmt {
             ),
             Stmt::If { predicate: _, then: _, otherwise: _ } => todo!(),
             Stmt::While { condition: _, body: _ } => todo!(),
-            Stmt::Break => String::from("(break)")
+            Stmt::Break => String::from("(break)"),
+            Stmt::Function { name: _, params: _, body: _ } => todo!()
         }
     }
 }

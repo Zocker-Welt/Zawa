@@ -8,7 +8,9 @@ program -> {
 
 
 declaration -> {
-    letDecl | statement
+    letDecl |
+    funcDecl |
+    statement
 }
 
 statement -> {
@@ -38,7 +40,7 @@ whileStmt -> {
 }
 
 ifStmt -> {
-    "if (" expression ")" statement ("else" statement)?
+    "if" "(" expression ")" statement ("else" statement)?
 }
 
 block -> {
@@ -50,6 +52,15 @@ exprStmt -> {
 
 echoStmt -> {
     "echo" expression ";"
+}
+
+funcDecl -> {
+    "fn" function
+}
+
+function -> {
+    IDENTIFIER "(" parametrs? ")"
+    block
 }
 
 letDecl -> {
@@ -119,6 +130,11 @@ pub struct Parser {
     current: usize,
 }
 
+#[derive(Debug)]
+enum FunctionType {
+    Function
+}
+
 impl Parser {
     pub fn new(tokens: Vec<Token>) -> Self {
         Self {
@@ -151,13 +167,44 @@ impl Parser {
 
     fn declaration(&mut self) -> Result<Stmt, String> {
         if self.match_token(TokenType::Let) {
-            match self.let_declaration() {
-                Ok(stmt) => Ok(stmt),
-                Err(msg) => Err(msg),
-            }
+            self.let_declaration()
+        } else if self.match_token(TokenType::Fn) {
+            self.function(FunctionType::Function)
         } else {
             self.statement()
         }
+    }
+
+    fn function(&mut self, type_: FunctionType) -> Result<Stmt, String> {
+        let name = self.consume(TokenType::Identifier, &format!("Expected {:?} after name", type_))?;
+
+        self.consume(TokenType::LeftParen, &format!("Expected '(' after {:?} name", type_))?;
+        
+        let mut parameters = Vec::new();
+        if !self.check(TokenType::RightParen) {
+            loop {
+                if parameters.len() > 255 {
+                    return Err(format!("line: {}, Can not have more than 255 function arguments", self.peek().line_number));
+                }
+
+                let param = self.consume(TokenType::Identifier, "Expected parameter after name")?;
+                parameters.push(param);
+
+                if !self.match_token(TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+
+        self.consume(TokenType::RightParen, "Expected ')' after parameters")?;
+
+        self.consume(TokenType::LeftBrace, &format!("Expected '{{' before {:?} body", type_))?;
+        let body = match self.block_statement()? {
+            Stmt::Block { statements } => statements,
+            _ => panic!("Block statement parsed something that was not a block")
+        };
+
+        Ok(Stmt::Function { name: name, params: parameters, body: body })
     }
 
     fn let_declaration(&mut self) -> Result<Stmt, String> {
@@ -453,9 +500,9 @@ impl Parser {
             loop {
                 let arg = self.expression()?;
                 arguments.push(arg);
-                if arguments.len() > 256 {
+                if arguments.len() >= 255 {
                     let location = self.peek().line_number;
-                    return Err(format!("line: {}, Can not have more than 256 function arguments", location));
+                    return Err(format!("line: {}, Can not have more than 255 function arguments", location));
                 }
 
                 if !self.match_token(TokenType::Comma) {
