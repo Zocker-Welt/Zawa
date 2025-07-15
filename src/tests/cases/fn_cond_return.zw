@@ -1,0 +1,8 @@
+fn condreturn(a) {
+    if (a <= 0) return 0;
+    return 1;
+}
+
+println(condreturn(4));
+println(condreturn(0));
+println(condreturn(6));

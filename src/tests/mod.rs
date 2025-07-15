@@ -129,4 +129,126 @@ mod tests {
         assert_eq!(lines[5], "0 1 2 3 4 5 ");
         assert_eq!(lines[6], "That's correct!");
     }
+
+    #[test]
+    fn interpret_recursive_count() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/recursive_count.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 4);
+        assert_eq!(lines[0], "1");
+        assert_eq!(lines[1], "2");
+        assert_eq!(lines[2], "3");
+    }
+
+    #[test]
+    fn interpret_fn_modify_local_env() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_modify_local_env.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 2);
+        assert_eq!(lines[0], "5");
+    }
+
+    #[test]
+    fn interpret_fn_return() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_return.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 2);
+        assert_eq!(lines[0], "12");
+    }
+
+    #[test]
+    fn interpret_fn_return_null() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_return_null.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 3);
+        assert_eq!(lines[0], "12");
+        assert_eq!(lines[1], "null");
+    }
+
+    #[test]
+    fn interpret_fn_cond_return() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_cond_return.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 4);
+        assert_eq!(lines[0], "1");
+        assert_eq!(lines[1], "0");
+        assert_eq!(lines[2], "1");
+    }
+
+    #[test]
+    fn interpret_fn_nested_return() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_nested_return.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        assert_eq!(lines.len(), 4);
+        assert_eq!(lines[0], "7");
+        assert_eq!(lines[1], "3");
+        assert_eq!(lines[2], "4");
+    }
+
+    #[test]
+    fn interpret_fn_fib() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_fib.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        let ans = &["0", "1", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89", "144", "233", "377", "610", "987", "1597", "2584", "4181"];
+        assert_eq!(lines.len(), 21);
+        for i in 0..(lines.len() - 1) {
+            assert_eq!(lines[i], ans[i]);
+        }
+    }
 }

@@ -309,7 +309,7 @@ impl Expr {
 
                 match (&left, operator.token_type, &right) {
                     //expreimental
-                    //(Number(x), TokenType::Slash, Number(0.0)) => Err(format!("Binary operator Slash cannot be applied for operands {:?}, Number(0.0)", Number(*x))),
+                    (Number(x), TokenType::Slash, Number(0.0)) => Err(format!("Binary operator Slash cannot be applied for operands {:?}, Number(0.0)", Number(*x))),
 
                     (Number(x), TokenType::Plus, Number(y)) => Ok(Number(x + y)),
                     (Number(x), TokenType::Minus, Number(y)) => Ok(Number(x - y)),

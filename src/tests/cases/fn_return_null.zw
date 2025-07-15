@@ -1,0 +1,6 @@
+fn write_sum(a, b) {
+    println(a + b);
+    return;
+}
+
+println(write_sum(5, 7));

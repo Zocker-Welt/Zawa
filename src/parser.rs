@@ -234,9 +234,27 @@ impl Parser {
             self.for_statement()
         } else if self.match_token(TokenType::Break) {
             self.break_statement()
+        } else if self.match_token(TokenType::Return) {
+            self.return_statement()
         } else {
             self.expression_statement()
         }
+    }
+
+    fn return_statement(&mut self) -> Result<Stmt, String> {
+        let keyword = self.previous();
+        let value;
+        if !self.check(TokenType::Semicolon) {
+            value = Some(self.expression()?);
+        } else {
+            value = None;
+        }
+        self.consume(TokenType::Semicolon, "Expected ';' after return value")?;
+
+        Ok(Stmt::Return {
+            keyword: keyword,
+            value: value
+        })
     }
 
     fn break_statement(&mut self) -> Result<Stmt, String> {

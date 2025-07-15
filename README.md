@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Zawa 0.12.0
+    Zawa 0.13.0
 </h1>
 
 <h1 align="center">
@@ -29,6 +29,20 @@ for (let b = 1; a < 100; b = temp + b) {
     echo a;
     temp = a;
     a = b;
+}
+```
+<h3 align="left">
+    Recursive Fibonacci
+</h3>
+
+```js
+fn fib(n) {
+    if (n <= 1) return n;
+    return fib(n - 2) + fib(n - 1);
+}
+
+for (let i = 0; i < 20; i = i + 1) {
+    println(fib(i));
 }
 ```
 
@@ -161,12 +175,22 @@ if (condition) {
 // Create a function
 fn sum(a, b) {
     println(a + b);
-    a + b; // The last expression is the return value (If you dont write it the program crashes)
+    return a + b; // Return a value
 }
 
 // Call a function
 sum(1, 2);
 let result = sum(1, 2);
+
+// You can also use recursion
+// For example: fibonacci sequence
+fn fib(n) {
+    if (n <= 1) return n;
+    return fib(n - 2) + fib(n - 1);
+}
+for (let i = 0; i < 20; i = i + 1) {
+    println(fib(i));
+}
 ```
 
 <h3 align="center">

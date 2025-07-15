@@ -6,6 +6,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 pub struct Interpreter {
+    specials: Rc<RefCell<Environment>>,
     environment: Rc<RefCell<Environment>>,
     should_break: bool,
 }
@@ -33,23 +34,23 @@ fn println_impl(_env: Rc<RefCell<Environment>>, args: &Vec<LiteralValue>) -> Lit
 
 impl Interpreter {
     pub fn new() -> Self {
-        let mut globals = Environment::new();
+        let mut env = Environment::new();
 
-        globals.define(
+        env.define(
             String::from("time"), LiteralValue::Callable {
             name: "time".to_string(),
             arity: 0,
             fn_: Rc::new(time_impl)
         });
 
-        globals.define(
+        env.define(
             String::from("print"), LiteralValue::Callable {
             name: "print".to_string(),
             arity: 1,
             fn_: Rc::new(print_impl)
         });
 
-        globals.define(
+        env.define(
             String::from("println"), LiteralValue::Callable {
             name: "println".to_string(),
             arity: 1,
@@ -57,7 +58,8 @@ impl Interpreter {
         });
 
         Self {
-            environment: Rc::new(RefCell::new(globals)),
+            specials: Rc::new(RefCell::new(Environment::new())),
+            environment: Rc::new(RefCell::new(env)),
             should_break: false
         }
     }
@@ -67,6 +69,7 @@ impl Interpreter {
         environment.borrow_mut().enclosing = Some(parent_env);
 
         Self {
+            specials: Rc::new(RefCell::new(Environment::new())),
             environment: environment,
             should_break: false
         }
@@ -150,25 +153,18 @@ impl Interpreter {
                                 .define(params[i].lexeme.clone(), (*arg).clone());
                         }
 
-                        for i in 0..(body.len() - 1) {
+                        for i in 0..(body.len()) {
                             clos_int
                                 .interpret(vec![body[i].as_ref()])
                                 .expect(&format!("Evaluating failed inside {}", name_clone));
+                            if let Some(value) = clos_int.specials.borrow().get("return") {
+                                return  value;
+                            }
                         }
 
-                        let value;
-                        match body[body.len() - 1].as_ref() {
-                            Stmt::Expression { expression } => {
-                                value = expression
-                                    .evaluate(clos_int.environment.clone())
-                                    .unwrap();
-                            },
-                            _ => todo!()
-                        }
-
-                        value
+                        LiteralValue::Null
                     };
-                    
+                     
                     let callable = LiteralValue::Callable {
                         name: name.lexeme.clone(),
                         arity: arity,
@@ -177,6 +173,19 @@ impl Interpreter {
 
                     self.environment.borrow_mut().define(name.lexeme.clone(), callable);
                 },
+                Stmt::Return { keyword: _, value } => {
+                    let eval_val;
+
+                    if let Some(value) = value {
+                        eval_val = value.evaluate(self.environment.clone())?;
+                    } else {
+                        eval_val = LiteralValue::Null;
+                    }
+
+                    self.specials
+                        .borrow_mut()
+                        .define_top_level(String::from("return"), eval_val)
+                }
             };
             
             if self.should_break {
