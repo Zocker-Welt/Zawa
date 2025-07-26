@@ -1,0 +1,14 @@
+let write_and_exit = fn (a) {
+    println(a);
+    exit(a);
+};
+
+write_and_exit(0);
+
+println("No 69 :c");
+
+// I wanted to write 69,
+// but then rust starts giving an error
+// about process not exiting successfully.
+
+// :(

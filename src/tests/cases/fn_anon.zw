@@ -1,0 +1,10 @@
+fn thrice(func) {
+    for (let i = 0; i < 3; i = i + 1) {
+        func(i);
+    }
+}
+
+
+thrice(fn (a) {
+    println(a);
+});

@@ -1,0 +1,11 @@
+fn caller(func) {
+    func();
+}
+
+let a = 0;
+
+caller(fn () {
+    a = a + 1;
+});
+
+println(a);

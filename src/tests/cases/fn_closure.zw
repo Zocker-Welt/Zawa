@@ -1,0 +1,19 @@
+fn make_counter() {
+    let i = 0;
+    
+    fn next() {
+        i = i + 1;
+        println(i);
+    }
+
+    return next;
+}
+
+let next1 = make_counter();
+let next2 = make_counter();
+
+next1();
+next2();
+
+next1();
+next2();
