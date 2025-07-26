@@ -251,4 +251,78 @@ mod tests {
             assert_eq!(lines[i], ans[i]);
         }
     }
+
+    #[test]
+    fn interpret_fn_closure() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_closure.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        let ans = &["1", "1", "2", "2"];
+        assert_eq!(lines.len(), ans.len() + 1);
+        for i in 0..(lines.len() - 1) {
+            assert_eq!(lines[i], ans[i]);
+        }
+    }
+
+    #[test]
+    fn interpret_fn_anon() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_anon.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        let ans = &["0", "1", "2"];
+        assert_eq!(lines.len(), ans.len() + 1);
+        for i in 0..(lines.len() - 1) {
+            assert_eq!(lines[i], ans[i]);
+        }
+    }
+
+    fn interpret_fn_anon_2() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_anon_2.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        let ans = &["1"];
+        assert_eq!(lines.len(), ans.len() + 1);
+        for i in 0..(lines.len() - 1) {
+            assert_eq!(lines[i], ans[i]);
+        }
+    }
+
+    fn interpret_fn_anon_declaration() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_anon_declaration.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        let ans = &["0"];
+        assert_eq!(lines.len(), ans.len() + 1);
+        for i in 0..(lines.len() - 1) {
+            assert_eq!(lines[i], ans[i]);
+        }
+    }
 }
