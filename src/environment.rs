@@ -40,7 +40,7 @@ impl Environment {
     pub fn assign(&mut self, name: &str, value: LiteralValue) -> bool {
         let old_value = self.values.get(name);
 
-        match  (old_value, &self.enclosing) {
+        match (old_value, &self.enclosing) {
             (Some(_), _) => {
                 self.values.insert(name.to_string(), value);
                 true

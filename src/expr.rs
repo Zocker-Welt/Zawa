@@ -1,3 +1,4 @@
+
 // 12 43
 
 /*
@@ -11,6 +12,7 @@ Binary operator Star cannot be applied for operands True, StringValue("a")
 use crate::tokenizer::{Token, TokenType};
 use crate::tokenizer;
 use crate::environment::Environment;
+use crate::interpreter::Interpreter;
 use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -24,7 +26,7 @@ pub enum LiteralValue {
     Callable { 
         name: String,
         arity: usize,
-        fn_: Rc<dyn Fn(Rc<RefCell<Environment>>, &Vec<LiteralValue>) -> LiteralValue>,
+        fn_: Rc<dyn Fn(&Vec<LiteralValue>) -> LiteralValue>,
     },
 }
 use LiteralValue::*;
@@ -135,8 +137,15 @@ impl LiteralValue {
     }
 }
 
+use crate::stmt::Stmt;
+
 #[derive(Clone)]
 pub enum Expr {
+    AnonFunction {
+        paren: Token,
+        arguments: Vec<Token>,
+        body: Vec<Box<Stmt>>
+    },
     Binary {
         left: Box<Expr>,
         operator: Token,
@@ -181,6 +190,14 @@ impl Expr {
     #[allow(dead_code)]
     pub fn to_string(&self) -> String {
         match self {
+            Expr::AnonFunction {
+                paren,
+                arguments,
+                body
+            } => format!(
+                "anon {}",
+                arguments.len()
+            ),
             Expr::Binary {
                 left,
                 operator,
@@ -228,6 +245,48 @@ impl Expr {
 
     pub fn evaluate(&self, environment: Rc<RefCell<Environment>>) -> Result<LiteralValue, String> {
         match self {
+            Expr::AnonFunction { paren, arguments, body } => {
+                let arity = arguments.len();
+                let env = environment.clone();
+
+                let arguments = arguments
+                    .iter()
+                    .map(|t| (*t).clone())
+                    .collect::<Vec<Token>>();
+
+                let body = body
+                    .iter()
+                    .map(|b| (*b).clone())
+                    .collect::<Vec<Box<Stmt>>>();
+
+                let paren_line = paren.line_number;
+                let fn_impl = move |args: &Vec<LiteralValue>| {
+                    let mut anon_int = Interpreter::anon_function(env.clone());
+                    for (i, arg) in args.iter().enumerate() {
+                        anon_int
+                            .environment
+                            .borrow_mut()
+                            .define(arguments[i].lexeme.clone(), (*arg).clone());
+                    }
+
+                    for i in 0..(body.len()) {
+                        anon_int
+                            .interpret(vec![&body[i]])
+                            .expect(&format!("Evaluating failed inside anonymous function at line {}", paren_line));
+                        if let Some(value) = anon_int.specials.borrow().get("return") {
+                            return value;
+                        }
+                    }
+
+                    LiteralValue::Null
+                };
+
+                Ok(Callable {
+                    name: String::from("anon_function"),
+                    arity: arity,
+                    fn_: Rc::new(fn_impl)
+                })
+            },
             Expr::Assign { name, value } => {
                 let new_value = (*value).evaluate(environment.clone())?;
                 let assign_success = environment.borrow_mut().assign(&name.lexeme, new_value.clone());
@@ -256,8 +315,8 @@ impl Expr {
                             let val = arg.evaluate(environment.clone())?;
                             arg_vals.push(val);
                         }
-                        
-                        Ok(fn_(environment.clone(), &arg_vals))
+
+                        Ok(fn_(&arg_vals))
                     },
                     other => Err(format!("{} is not callable", other.to_string()))
                 }

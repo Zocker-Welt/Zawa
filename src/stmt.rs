@@ -8,7 +8,7 @@ pub enum Stmt {
     Let { name: Token, initializer: Expr },
     Block { statements: Vec<Box<Stmt>> },
     If { predicate: Expr, then: Box<Stmt>, otherwise: Option<Box<Stmt>> },
-    While { condition: Expr,  body: Box<Stmt> },
+    While { condition: Expr, body: Box<Stmt> },
     Break,
     Function { name: Token, params: Vec<Token>, body: Vec<Box<Stmt>> },
     Return { keyword: Token, value: Option<Expr> },

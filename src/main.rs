@@ -1,3 +1,5 @@
+const ZAWA_VERSION: &str = "0.14.0";
+
 mod tests;
 
 mod tokenizer;
@@ -42,6 +44,8 @@ pub fn run_file(path: &str) -> Result<(), String> {
 }
 
 fn run_prompt() -> Result<(), String> {
+    println!("Zawa {} - REPL", ZAWA_VERSION);
+
     let mut interpreter = Interpreter::new();
 
     loop {

@@ -5,13 +5,25 @@ use crate::environment::Environment;
 use std::rc::Rc;
 use std::cell::RefCell;
 
+fn safe_f64_to_i32(value: f64) -> Result<i32, String> {
+    if value.fract() != 0.0 || value.is_nan() || value.is_infinite() {
+        return Err(format!("{} has a fractional part", value));
+    }
+
+    if value > i32::MAX as f64 || value < i32::MIN as f64 {
+        return Err(format!("{} is not 32 bit", value));
+    }
+
+    Ok(value as i32)
+}
+
 pub struct Interpreter {
-    specials: Rc<RefCell<Environment>>,
-    environment: Rc<RefCell<Environment>>,
+    pub specials: Rc<RefCell<Environment>>,
+    pub environment: Rc<RefCell<Environment>>,
     should_break: bool,
 }
 
-fn time_impl(_env: Rc<RefCell<Environment>>, _args: &Vec<LiteralValue>) -> LiteralValue {
+fn time_impl(_args: &Vec<LiteralValue>) -> LiteralValue {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::SystemTime::UNIX_EPOCH)
         .expect("Could not get system time")
@@ -20,14 +32,28 @@ fn time_impl(_env: Rc<RefCell<Environment>>, _args: &Vec<LiteralValue>) -> Liter
     LiteralValue::Number(now as f64 / 1000.0)
 }
 
-fn print_impl(_env: Rc<RefCell<Environment>>, args: &Vec<LiteralValue>) -> LiteralValue {
+fn print_impl(args: &Vec<LiteralValue>) -> LiteralValue {
     print!("{}", args[0].to_string());
 
     LiteralValue::Null
 }
 
-fn println_impl(_env: Rc<RefCell<Environment>>, args: &Vec<LiteralValue>) -> LiteralValue {
+fn println_impl(args: &Vec<LiteralValue>) -> LiteralValue {
     println!("{}", args[0].to_string());
+
+    LiteralValue::Null
+}
+
+fn exit_impl(args: &Vec<LiteralValue>) -> LiteralValue {
+    match args[0] {
+        LiteralValue::Number(x) => {
+            match safe_f64_to_i32(x) {
+                Ok(code) => std::process::exit(code),
+                Err(msg) => panic!("{}", msg)
+            }
+        },
+        _ => panic!("Expected a number")
+    }
 
     LiteralValue::Null
 }
@@ -57,6 +83,13 @@ impl Interpreter {
             fn_: Rc::new(println_impl)
         });
 
+        env.define(
+            String::from("exit"), LiteralValue::Callable {
+            name: "exit".to_string(),
+            arity: 1,
+            fn_: Rc::new(exit_impl)
+        });
+
         Self {
             specials: Rc::new(RefCell::new(Environment::new())),
             environment: Rc::new(RefCell::new(env)),
@@ -71,6 +104,16 @@ impl Interpreter {
         Self {
             specials: Rc::new(RefCell::new(Environment::new())),
             environment: environment,
+            should_break: false
+        }
+    }
+
+    pub fn anon_function(parent: Rc<RefCell<Environment>>) -> Self {
+        let mut env = Environment::new();
+        env.enclosing = Some(parent);
+        Self {
+            specials: Rc::new(RefCell::new(Environment::new())),
+            environment: Rc::new(RefCell::new(env)),
             should_break: false
         }
     }
@@ -97,7 +140,7 @@ impl Interpreter {
 
                     let old_environment = self.environment.clone();
                     self.environment = Rc::new(RefCell::new(new_environment));
-                    let block_result =  self.interpret((*statements).iter().map(|b| b.as_ref()).collect());
+                    let block_result = self.interpret((*statements).iter().map(|b| b.as_ref()).collect());
                     self.environment = old_environment;
 
                     block_result?;
@@ -122,7 +165,7 @@ impl Interpreter {
                 Stmt::While { condition, body } => {
                     let mut flag = condition.evaluate(self.environment.clone())?;
 
-                    while flag.is_truthy()  == LiteralValue::True {
+                    while flag.is_truthy() == LiteralValue::True {
                         let statements = vec![body.as_ref()];
                         self.interpret(statements)?;
                         if self.should_break {
@@ -143,8 +186,10 @@ impl Interpreter {
                     let body: Vec<Box<Stmt>> = body.iter().map(|b| (*b).clone()).collect();
                     
                     let name_clone = name.lexeme.clone();
-                    let function_impl = move |parent_env_rc: Rc<RefCell<Environment>>, args: &Vec<LiteralValue>| {
-                        let mut clos_int = Interpreter::for_closure(parent_env_rc);
+
+                    let parent_env = self.environment.clone();
+                    let function_impl = move |args: &Vec<LiteralValue>| {
+                        let mut clos_int = Interpreter::for_closure(parent_env.clone());
                         
                         for (i, arg) in args.iter().enumerate() {
                             clos_int
@@ -158,7 +203,7 @@ impl Interpreter {
                                 .interpret(vec![body[i].as_ref()])
                                 .expect(&format!("Evaluating failed inside {}", name_clone));
                             if let Some(value) = clos_int.specials.borrow().get("return") {
-                                return  value;
+                                return value;
                             }
                         }
 

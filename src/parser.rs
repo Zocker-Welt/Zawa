@@ -68,7 +68,10 @@ letDecl -> {
 }
 
 expression -> {
-    assignment
+    function_expression | assignment
+}
+
+function_expression -> {
 }
 
 assignment -> {
@@ -342,7 +345,7 @@ impl Parser {
 
         let then = Box::new(self.statement()?);
 
-        let otherwise =  if self.match_token(TokenType::Else) {
+        let otherwise = if self.match_token(TokenType::Else) {
             let stmt = self.statement()?;
             Some(Box::new(stmt))
         } else {
@@ -377,14 +380,52 @@ impl Parser {
     }
 
     fn expression(&mut self) -> Result<Expr, String> {
+        /*if self.match_token(TokenType::Fn) {
+            self.function_expression()
+        } else {
+            self.assignment()
+        }*/
         self.assignment()
+    }
+
+    fn function_expression(&mut self) -> Result<Expr, String> {
+        let paren = self.consume(TokenType::LeftParen, "Expected '(' after anonymous function")?;
+        
+        let mut parameters = Vec::new();
+        if !self.check(TokenType::RightParen) {
+            loop {
+                if parameters.len() > 255 {
+                    return Err(format!("line: {}, Can not have more than 255 function arguments", self.peek().line_number));
+                }
+
+                let param = self.consume(TokenType::Identifier, "Expected parameter after name")?;
+                parameters.push(param);
+
+                if !self.match_token(TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+        self.consume(TokenType::RightParen, "Expected ')' after anonymous function parameters")?;
+        
+        self.consume(TokenType::LeftBrace, "Expected '{' after anonymous function declaration")?;
+        let body = match self.block_statement()? {
+            Stmt::Block { statements } => statements,
+            _ => panic!("Block statement parsed somoething that was not a block")
+        };
+
+        Ok(Expr::AnonFunction {
+            paren: paren,
+            arguments: parameters,
+            body: body
+        })
     }
 
     fn assignment(&mut self) -> Result<Expr, String> {
         let expr = self.or()?;
 
         if self.match_token(TokenType::Equal) {
-            let value = self.assignment()?;
+            let value = self.expression()?;
 
             match expr {
                 Expr::Variable { name } => Ok(Expr::Assign { name: name, value: Box::from(value) }),
@@ -556,6 +597,10 @@ impl Parser {
                 self.advance();
                 result = Expr::Variable { name: self.previous() };
             }
+            TokenType::Fn => {
+                self.advance();
+                result = self.function_expression()?;
+            },
             _ => {
                 return Err(String::from("Expected expression"));
             },
