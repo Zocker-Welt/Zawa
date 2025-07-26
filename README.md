@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Zawa 0.13.0
+    Zawa 0.14.0
 </h1>
 
 <h1 align="center">
@@ -131,11 +131,11 @@ echo expression; // Outdated (may be removed soon)
 
 // Variable declaration
 let name = value;
-let name; // the variable's value is null
+let name; // The variable's value is null
 
 // Variable assignment
 new_var = value;
-echo name = value // Variable assignment is an expression (not a statement). It returns the new value
+println(name = value); // Variable assignment is an expression (not a statement). It returns the new value
 
 // Or
 println("stringval" or false); // Writes stringval
@@ -172,8 +172,15 @@ if (condition) {
     println("This won't be written to io");
 }
 
-// Create a function
+// Function declaration
 fn sum(a, b) {
+    println(a + b);
+    return a + b; // Return a value
+}
+
+// Or use anonymous functions
+// The function is a value that can be used in expressions
+let sum = fn () {
     println(a + b);
     return a + b; // Return a value
 }
@@ -198,9 +205,10 @@ for (let i = 0; i < 20; i = i + 1) {
 </h3>
 
 ```js
-time() // returns the current time in seconds since the unix time epoch
-print(arg) // writes to io
-println(arg) // writes a line to io
+time() // Returns the current time in seconds since the unix time epoch
+print(arg) // Writes to io
+println(arg) // Writes a line to io
+exit(arg) // Exit the program
 ```
 
 <h3 align="center">
