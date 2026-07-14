@@ -4,6 +4,7 @@ use crate::stmt::Stmt;
 use crate::environment::Environment;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::io;
 
 fn safe_f64_to_i32(value: f64) -> Result<i32, String> {
     if value.fract() != 0.0 || value.is_nan() || value.is_infinite() {
@@ -42,6 +43,18 @@ fn println_impl(args: &Vec<LiteralValue>) -> LiteralValue {
     println!("{}", args[0].to_string());
 
     LiteralValue::Null
+}
+
+fn readln_impl(args: &Vec<LiteralValue>) -> LiteralValue {
+    let mut input_text = String::new();
+    
+    io::stdin()
+        .read_line(&mut input_text
+        ).expect("Failed to read line from stdin");
+    
+    let clean_line = input_text.trim_end_matches(['\r', '\n']).to_string();
+    
+    LiteralValue::StringValue(clean_line)
 }
 
 fn exit_impl(args: &Vec<LiteralValue>) -> LiteralValue {
@@ -88,6 +101,13 @@ impl Interpreter {
             name: "exit".to_string(),
             arity: 1,
             fn_: Rc::new(exit_impl)
+        });
+
+        env.define(
+            String::from("readln"), LiteralValue::Callable {
+            name: "readln".to_string(),
+            arity: 0,
+            fn_: Rc::new(readln_impl)
         });
 
         Self {

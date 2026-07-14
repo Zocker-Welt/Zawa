@@ -125,9 +125,12 @@ zawa [file]
 // This is a comment
 
 // Write to io
-print(expression)
-println(expression)
+print(expression);
+println(expression);
 echo expression; // Outdated (may be removed soon)
+
+// Read from io
+let var = readln();
 
 // Variable declaration
 let name = value;
@@ -208,6 +211,7 @@ for (let i = 0; i < 20; i = i + 1) {
 time() // Returns the current time in seconds since the unix time epoch
 print(arg) // Writes to io
 println(arg) // Writes a line to io
+readln() // Reads from io
 exit(arg) // Exit the program
 ```
 

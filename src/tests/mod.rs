@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
     use std::process::Command;
+    use std::io::Write;
+    use std::process::Stdio;
 
     #[test]
     fn helloworld() {
@@ -290,6 +292,7 @@ mod tests {
         }
     }
 
+    #[test]
     fn interpret_fn_anon_2() {
         let output = Command::new("cargo")
             .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_anon_2.zw"])
@@ -308,6 +311,7 @@ mod tests {
         }
     }
 
+    #[test]
     fn interpret_fn_anon_declaration() {
         let output = Command::new("cargo")
             .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/fn_anon_declaration.zw"])
@@ -320,6 +324,34 @@ mod tests {
             .collect::<Vec<&str>>();
 
         let ans = &["0"];
+        assert_eq!(lines.len(), ans.len() + 1);
+        for i in 0..(lines.len() - 1) {
+            assert_eq!(lines[i], ans[i]);
+        }
+    }
+
+    #[test]
+    fn interpret_readln() {
+        let mut child = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/readln.zw"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+
+        {
+            let mut stdin = child.stdin.take().expect("Failed to open stdin");
+            stdin.write_all(b"Hello, 67\n").expect("Failed to write to stdin");
+        }
+
+        let output = child.wait_with_output().expect("Failed to read output");
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        let ans = &["Hello, 67"];
         assert_eq!(lines.len(), ans.len() + 1);
         for i in 0..(lines.len() - 1) {
             assert_eq!(lines[i], ans[i]);
