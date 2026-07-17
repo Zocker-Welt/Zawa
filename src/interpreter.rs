@@ -2,9 +2,11 @@ use crate::tokenizer::Token;
 use crate::expr::LiteralValue;
 use crate::stmt::Stmt;
 use crate::environment::Environment;
+use std::io::ErrorKind::UnexpectedEof;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::io;
+use std::io::Read;
 
 fn safe_f64_to_i32(value: f64) -> Result<i32, String> {
     if value.fract() != 0.0 || value.is_nan() || value.is_infinite() {
@@ -45,16 +47,59 @@ fn println_impl(args: &Vec<LiteralValue>) -> LiteralValue {
     LiteralValue::Null
 }
 
-fn readln_impl(args: &Vec<LiteralValue>) -> LiteralValue {
+fn read_impl(_args: &Vec<LiteralValue>) -> LiteralValue {
+    let mut input_text = String::new();
+    let mut buffer = [0; 1];
+
+    loop {
+        match io::stdin().read_exact(&mut buffer) {
+            Ok(_) => {
+                let c = buffer[0] as char;
+
+                if c.is_whitespace() {
+                    if !input_text.is_empty() {
+                        break;
+                    }
+                    continue;
+                }
+
+                input_text.push(c);
+            }
+            Err(ref e) if e.kind() == io::ErrorKind::UnexpectedEof => break,
+            Err(_) => panic!("Failed to read from stdin")
+        }
+    }
+
+    LiteralValue::StringValue(input_text)
+}
+
+fn readln_impl(_args: &Vec<LiteralValue>) -> LiteralValue {
     let mut input_text = String::new();
     
     io::stdin()
         .read_line(&mut input_text
         ).expect("Failed to read line from stdin");
     
-    let clean_line = input_text.trim_end_matches(['\r', '\n']).to_string();
+    let clean_line = input_text.trim_end().to_string();
     
     LiteralValue::StringValue(clean_line)
+}
+
+fn number_impl(args: &Vec<LiteralValue>) -> LiteralValue {
+    match &args[0] {
+        LiteralValue::Number(x) => {
+            LiteralValue::Number(*x)
+        },
+        LiteralValue::StringValue(s) => {
+            match s.parse::<f64>() {
+                Ok(num) => LiteralValue::Number(num),
+                Err(msg) => panic!("{}", msg)
+            }
+        },
+        LiteralValue::True => LiteralValue::Number(1 as f64),
+        LiteralValue::False => LiteralValue::Number(0 as f64),
+        _ => panic!("Expected a number")
+    }
 }
 
 fn exit_impl(args: &Vec<LiteralValue>) -> LiteralValue {
@@ -104,10 +149,24 @@ impl Interpreter {
         });
 
         env.define(
+            String::from("read"), LiteralValue::Callable {
+            name: "read".to_string(),
+            arity: 0,
+            fn_: Rc::new(read_impl)
+        });
+
+        env.define(
             String::from("readln"), LiteralValue::Callable {
             name: "readln".to_string(),
             arity: 0,
             fn_: Rc::new(readln_impl)
+        });
+
+        env.define(
+            String::from("number"), LiteralValue::Callable {
+            name: "number".to_string(),
+            arity: 1,
+            fn_: Rc::new(number_impl)
         });
 
         Self {

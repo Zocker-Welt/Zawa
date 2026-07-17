@@ -1,4 +1,4 @@
-const ZAWA_VERSION: &str = "0.14.0";
+const ZAWA_VERSION: &str = "0.15.0";
 
 mod tests;
 

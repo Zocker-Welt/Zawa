@@ -1,0 +1,4 @@
+let text1 = read();
+let text2 = read();
+println("Text 1: " + text1);
+println("Text 2: " + text2);

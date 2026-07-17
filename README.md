@@ -6,7 +6,7 @@
 
 
 <h1 align="center">
-    Zawa 0.14.0
+    Zawa 0.15.0
 </h1>
 
 <h1 align="center">
@@ -129,7 +129,10 @@ print(expression);
 println(expression);
 echo expression; // Outdated (may be removed soon)
 
-// Read from io
+// Read til whitespace from io
+let var = read();
+
+// Read a line from io
 let var = readln();
 
 // Variable declaration
@@ -192,15 +195,8 @@ let sum = fn () {
 sum(1, 2);
 let result = sum(1, 2);
 
-// You can also use recursion
-// For example: fibonacci sequence
-fn fib(n) {
-    if (n <= 1) return n;
-    return fib(n - 2) + fib(n - 1);
-}
-for (let i = 0; i < 20; i = i + 1) {
-    println(fib(i));
-}
+// Parse value to number
+let result = number("34.7")
 ```
 
 <h3 align="center">
@@ -211,8 +207,10 @@ for (let i = 0; i < 20; i = i + 1) {
 time() // Returns the current time in seconds since the unix time epoch
 print(arg) // Writes to io
 println(arg) // Writes a line to io
-readln() // Reads from io
+read() // Reads til whitespace from io
+readln() // Reads a line from io
 exit(arg) // Exit the program
+number(arg) // Parse to number
 ```
 
 <h3 align="center">
@@ -234,7 +232,7 @@ example:        "Hello, world!"
 ```js
 name:           bollean
 description:    bollean value
-examples:        true, false
+examples:       true, false
 ```
 
 ```js
@@ -256,8 +254,8 @@ false
 
 if
 else
-class
-self
+class // Will be added in the future
+self // Will be added in the future
 
 fn
 return
@@ -269,7 +267,7 @@ null
 
 echo
 
-super
+super // Will be added in the future
 
 let
 ```
