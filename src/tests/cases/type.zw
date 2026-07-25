@@ -1,0 +1,4 @@
+println(type(69));
+println(type("text"));
+println(type(true));
+println(type(false));

@@ -102,6 +102,29 @@ fn number_impl(args: &Vec<LiteralValue>) -> LiteralValue {
     }
 }
 
+fn string_impl(args: &Vec<LiteralValue>) -> LiteralValue {
+    // match &args[0] {
+    //     LiteralValue::Number(x) => {
+    //         LiteralValue::StringValue(x.to_string())
+    //     },
+    //     LiteralValue::StringValue(s) => LiteralValue::StringValue(s.clone()),
+    //     LiteralValue::True => LiteralValue::StringValue(String::from("true")),
+    //     LiteralValue::False => LiteralValue::StringValue(String::from("false")),
+    //     LiteralValue::Callable {name, arity, fn_} => LiteralValue::StringValue(name.clone()),
+    //     LiteralValue::Null => LiteralValue::StringValue(String::from("null"))
+    // }
+
+    LiteralValue::StringValue(LiteralValue::to_string(&args[0]))
+}
+
+fn boolean_impl(args: &Vec<LiteralValue>) -> LiteralValue {
+   LiteralValue::is_truthy(&args[0])
+}
+
+fn type_impl(args: &Vec<LiteralValue>) -> LiteralValue {
+   LiteralValue::StringValue(String::from(LiteralValue::to_type(&args[0])))
+}
+
 fn exit_impl(args: &Vec<LiteralValue>) -> LiteralValue {
     match args[0] {
         LiteralValue::Number(x) => {
@@ -167,6 +190,27 @@ impl Interpreter {
             name: "number".to_string(),
             arity: 1,
             fn_: Rc::new(number_impl)
+        });
+
+        env.define(
+            String::from("string"), LiteralValue::Callable {
+            name: "string".to_string(),
+            arity: 1,
+            fn_: Rc::new(string_impl)
+        });
+
+        env.define(
+            String::from("boolean"), LiteralValue::Callable {
+            name: "boolean".to_string(),
+            arity: 1,
+            fn_: Rc::new(boolean_impl)
+        });
+
+        env.define(
+            String::from("type"), LiteralValue::Callable {
+            name: "type".to_string(),
+            arity: 1,
+            fn_: Rc::new(type_impl)
         });
 
         Self {

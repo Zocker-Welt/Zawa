@@ -1,0 +1,5 @@
+print(number(true)); print(" "); print(number(false)); print(" "); print(number("3.14")); print(" "); println(number(4));
+
+println(string(true) + " " + string(false) + " " + string("text") + " " + string(4));
+
+print(boolean(true)); print(" "); print(boolean(false)); print(" "); print(boolean("text")); print(" "); println(boolean(4));

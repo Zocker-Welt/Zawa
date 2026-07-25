@@ -387,9 +387,9 @@ mod tests {
     }
 
     #[test]
-    fn interpret_prase_to_number() {
+    fn interpret_parse() {
         let output = Command::new("cargo")
-            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/parse_to_number.zw"])
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/parse.zw"])
             .output()
             .unwrap();
 
@@ -398,7 +398,25 @@ mod tests {
             .split("\n")
             .collect::<Vec<&str>>();
 
-        let ans = &["3.14"];
+        let ans = &["1 0 3.14 4", "true false text 4", "true false true true"];
+        assert_eq!(lines.len(), ans.len() + 1);
+        for i in 0..(lines.len() - 1) {
+            assert_eq!(lines[i], ans[i]);
+        }
+    }
+
+    fn interpret_type() {
+        let output = Command::new("cargo")
+            .args(["r", "C:/Users/Misha/Documents/zawa/src/tests/cases/type.zw"])
+            .output()
+            .unwrap();
+
+        let lines = std::str::from_utf8(output.stdout.as_slice())
+            .unwrap()
+            .split("\n")
+            .collect::<Vec<&str>>();
+
+        let ans = &["Number", "String", "Boolean", "Boolean"];
         assert_eq!(lines.len(), ans.len() + 1);
         for i in 0..(lines.len() - 1) {
             assert_eq!(lines[i], ans[i]);
